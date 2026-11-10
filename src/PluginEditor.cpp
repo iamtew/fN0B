@@ -7,7 +7,9 @@ constexpr int kEditorH = 400;
 constexpr int kPad = 8;
 constexpr int kTitleH = 40;
 constexpr int kTitleHitW = 150;
-constexpr int kLabelH = 14;
+constexpr int kTextBoxW = 56;
+constexpr int kTextBoxH = 18;
+constexpr int kHintH = 32;
 
 // What the knob does in each preset, shown under it so the one control explains itself.
 const char* const kHints[fn0b::kPresetCount] = {
@@ -186,7 +188,10 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
     logo = juce::ImageCache::getFromMemory (BinaryData::logo_png, BinaryData::logo_pngSize);
 
     knob.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
-    knob.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    knob.setTextBoxStyle (juce::Slider::TextBoxBelow, false, kTextBoxW, kTextBoxH);
+    knob.setColour (juce::Slider::textBoxTextColourId, kLight);
+    knob.setColour (juce::Slider::textBoxBackgroundColourId, kInk);
+    knob.setColour (juce::Slider::textBoxOutlineColourId, kGrey);
     knob.setTooltip ("The knob. Everything the preset does is on this one control.");
     if (auto* prm = dynamic_cast<juce::RangedAudioParameter*> (proc.apvts.getParameter (ParamID::knob)))
         knob.setDoubleClickReturnValue (true, prm->convertFrom0to1 (prm->getDefaultValue()));
@@ -194,15 +199,9 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
         proc.apvts, ParamID::knob, knob);
     content.addAndMakeVisible (knob);
 
-    knobName.setText ("KNOB", juce::dontSendNotification);
-    knobName.setJustificationType (juce::Justification::centred);
-    knobName.setColour (juce::Label::textColourId, kAmber);
-    knobName.setFont (boldFont (14.f));
-    content.addAndMakeVisible (knobName);
-
     knobHint.setJustificationType (juce::Justification::centred);
     knobHint.setColour (juce::Label::textColourId, kGrey);
-    knobHint.setFont (boldFont (10.f));
+    knobHint.setFont (boldFont (14.f));
     content.addAndMakeVisible (knobHint);
 
     presetBar.setTooltip ("Preset. Arrows step, click for the list.");
@@ -298,10 +297,9 @@ void fN0BAudioProcessorEditor::layoutContent()
 
     r.removeFromTop (4);
     auto knobArea = r.removeFromTop (r.getHeight() - 40);
-    const int d = juce::jmin (knobArea.getWidth(), knobArea.getHeight() - 40);
-    knob.setBounds (knobArea.withSizeKeepingCentre (d, d).translated (0, -10));
-    knobName.setBounds (knob.getBounds().withY (knob.getBottom() + 4).withHeight (kLabelH));
-    knobHint.setBounds (knobName.getBounds().withY (knobName.getBottom() + 2).withHeight (kLabelH));
+    const int d = juce::jmin (knobArea.getWidth(), knobArea.getHeight() - kTextBoxH - kHintH - 8);
+    knob.setBounds (knobArea.withSizeKeepingCentre (d, d + kTextBoxH).translated (0, -8));
+    knobHint.setBounds (knob.getBounds().withY (knob.getBottom() + 2).withHeight (kHintH));
 }
 
 void fN0BAudioProcessorEditor::refreshBar()

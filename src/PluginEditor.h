@@ -63,7 +63,7 @@ private:
     int baseW = 0, baseH = 0;
 
     juce::Slider knob;
-    juce::Label knobName, knobHint;
+    juce::Label knobHint;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> knobAtt;
 
     PresetBar presetBar;
