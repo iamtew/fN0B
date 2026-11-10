@@ -5,7 +5,7 @@
 
 #include <JuceHeader.h>
 
-// Two parameters: the knob (0..1, shown as a percentage) and the preset choice.
+// Knob + preset, plus in/out trim (dB). The trim is not part of the preset mapping.
 inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
     using namespace juce;
@@ -28,6 +28,29 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add (std::make_unique<AudioParameterChoice> (
         ParameterID { ParamID::preset, 1 }, "Preset",
         StringArray (fn0b::kPresetNames, fn0b::kPresetCount), 0));
+
+    auto gainText = [] (float v, int)
+    {
+        return String (v, 1) + " dB";
+    };
+    auto gainParse = [] (const String& t)
+    {
+        return jlimit (-12.f, 12.f, t.getFloatValue());
+    };
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { ParamID::inputGain, 1 }, "Input Gain",
+        NormalisableRange<float> (-12.f, 12.f), 0.f,
+        AudioParameterFloatAttributes()
+            .withStringFromValueFunction (gainText)
+            .withValueFromStringFunction (gainParse)));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { ParamID::outputGain, 1 }, "Output Gain",
+        NormalisableRange<float> (-12.f, 12.f), 0.f,
+        AudioParameterFloatAttributes()
+            .withStringFromValueFunction (gainText)
+            .withValueFromStringFunction (gainParse)));
 
     return layout;
 }
