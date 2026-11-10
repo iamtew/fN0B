@@ -1,32 +1,50 @@
-# fN0B - The Knob
-VST3 audio effect, single knob, endless fun!
+# fN0B – Cursor Rules
 
-JUCE location `~/JUCE`
+Spec: [docs/SPEC.md](docs/SPEC.md).
 
-Read `./bootstrap/fN0B-Single_Knob_FX.md`
+Single knob effect. Pick a preset, turn the knob. VST3. Part of Stupid Audio; sister of fR3Z0.
 
-First pass:
-- Bootstrap fN0B plugin.
-- Implement knob.
-- Implement 3 presets.
+## Stack
+- JUCE (Projucer workflow only – no CMake)
+- C++17, real-time safe: no allocations, no locks, no system calls in processBlock
+- APVTS for all parameters
+- Just + justfile
+- JUCE from `%USERPROFILE%\JUCE`
+- `assets/logo.png` is the Affinity export. Source of truth. Never overwrite. `just icon` / `just docs-logo` derive the rest.
 
-Update this `AGENTS.md` to be a more full-fledged file appropriate for configuring the agent.
+## Layout
+src/
+ PluginProcessor.h/.cpp
+ PluginEditor.h/.cpp
+ dsp/Presets.h Units.h Chain.h
+ parameters/ParameterIDs.h ParameterLayout.h
+ ui/Theme.h VersionCompare.h
+tests/fn0b_check.cpp
+docs/
+justfile
+fN0B.jucer
 
-## Color palette
-Mint on deep teal-black. Drives `src/ui/Theme.h`, `docs/style.css`, and the og image.
+## Version
+- Jucer `version=` is what the binary and About dialog show.
+- Git tags must match that string (`0.0.1`).
+- `just build-dist` names the zip and MSI from the jucer version.
 
-**Colors:**
-- #35E0A6 - Mint (accent, the knob cap)
-- #F2C14E - Amber (secondary, selection, chevrons)
-- #E8F5F0 - Near White (text)
-- #7C918B - Sage Grey (secondary text, borders)
-- #132020 - Panel
-- #0C1414 - Chassis (background)
-- #08100F - Ink (inset wells)
+## Presets
+- A preset is one effect or a short chain; the knob or the preset selector is all the user gets.
+- The knob-to-parameter mapping lives in `src/dsp/Presets.h` and stays JUCE-free so `tests/fn0b_check.cpp` can compile it with plain `cl`.
+- Chain order is per preset and is part of the sound. Do not make it configurable.
 
-**Usage:**
-- Primary: Mint
-- Secondary: Amber
-- Background: Chassis, panels sit on it
-- Ink is for wells and inset surfaces, darker than the chassis
+## Colors
+- #35e0a6 Mint (accent, the knob cap)
+- #f2c14e Amber (secondary, selection)
+- #e8f5f0 Near White (text)
+- #7c918b Sage Grey (secondary text, borders)
+- #132020 Panel
+- #0c1414 Chassis (background)
+- #08100f Ink (inset wells)
 
+## Do NOT
+- Introduce CMake
+- Allocate on the audio thread
+- Build a generic effect graph, a reorderable chain, or a modular rack
+- Copy commercial plugin code
