@@ -13,7 +13,10 @@ constexpr int kLabelH = 14;
 const char* const kHints[fn0b::kPresetCount] = {
     "clean boost 0 to +18 dB, top end closing 20 kHz to 4 kHz",
     "cutoff 200 Hz to 8 kHz, resonance 0.2 to 0.9, drive 0 to +12 dB",
-    "sample rate 1x to 16x, 16 to 4 bits, drive 0 to +12 dB"
+    "sample rate 1x to 16x, 16 to 4 bits, drive 0 to +12 dB",
+    "delay 60 to 450 ms, repeats 15 to 60%, top end falling to 2.5 kHz",
+    "room grows to full, octave shimmer blooms to 50%, tone falls to 6 kHz",
+    "sweep 0.12 to 3.5 Hz, depth to full, feedback to 70%"
 };
 } // namespace
 

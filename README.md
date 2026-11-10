@@ -2,7 +2,7 @@
 
 # fN0B
 
-**fN0B** is a one-knob effect. Pick a preset, turn the knob, and hear the whole chain move. Each preset is one effect or a short chain, and the knob sweeps its key parameters together so every position sounds intentional. Three presets ship: Warm Drive, Filter Funk, Bitcrush Destruct.
+**fN0B** is a one-knob effect. Pick a preset, turn the knob, and hear the whole chain move. Each preset is one effect or a short chain, and the knob sweeps its key parameters together so every position sounds intentional. Six presets ship: Warm Drive, Filter Funk, Bitcrush Destruct, Tape Echo, Shimmer Verb, Phaser Sweep.
 
 VST3. Stupid Audio. [MIT](LICENSE). Site: [docs/](docs/index.html). Manual: [docs/docs.html](docs/docs.html).
 

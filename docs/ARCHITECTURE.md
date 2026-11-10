@@ -19,7 +19,7 @@ Message thread:
 ## Files
 
 - `src/dsp/Presets.h` — the knob-to-parameter mapping. JUCE-free, so the check can compile it with plain `cl`.
-- `src/dsp/Units.h` — `softClip` and `BitCrusher`. Also JUCE-free.
-- `src/dsp/Chain.h` — the JUCE side: two `StateVariableTPTFilter`s, two `BitCrusher`s, and the per-sample smoothers.
+- `src/dsp/Units.h` — `softClip`, `BitCrusher`, `Delay`. Also JUCE-free.
+- `src/dsp/Chain.h` — the JUCE side: two `StateVariableTPTFilter`s, crushers, delay lines, `juce::dsp::Reverb`, `juce::dsp::Phaser`, and the per-sample smoothers.
 
-A preset that needs a unit it does not have yet adds it to `Units.h` and one `case` in `Chain::process`. Two presets already share the soft clip and the low-pass, so the units are written once.
+A preset that needs a unit it does not have yet adds it to `Units.h` (or a JUCE `dsp` widget in `Chain.h`) and one `case` in `Chain::process`. Units are written once and shared.

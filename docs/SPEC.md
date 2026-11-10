@@ -22,13 +22,16 @@ Default sound: Warm Drive at 0%, a clean pass-through.
 
 ## Presets
 
-Three, shipped in code. The knob-to-parameter mapping lives in `src/dsp/Presets.h`.
+Shipped in code. The knob-to-parameter mapping lives in `src/dsp/Presets.h`.
 
 | Preset | Chain | Knob 0 → 100% |
 | --- | --- | --- |
 | Warm Drive | soft clip → low-pass | drive 0→+18 dB, cutoff 20 kHz→4 kHz |
 | Filter Funk | low-pass → soft clip | cutoff 200→8000 Hz, resonance 0.2→0.9, drive 0→+12 dB |
 | Bitcrush Destruct | sample-rate reduce → bit reduce → soft clip | rate 1x→16x, bits 16→4, drive 0→+12 dB |
+| Tape Echo | delay (damped, clipped feedback) → low-pass | delay 60→450 ms, feedback 15→60%, drive 0→+6 dB, cutoff 12 kHz→2.5 kHz |
+| Shimmer Verb | reverb + octave-up feedback loop → low-pass | room 0.15→1, wet 10→45%, shimmer 0→50%, cutoff 20 kHz→6 kHz |
+| Phaser Sweep | 6-stage phaser | rate 0.12→3.5 Hz, depth 0.2→1, feedback 10→70% |
 
 ## Do not
 
