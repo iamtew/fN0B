@@ -9,7 +9,8 @@ constexpr int kTitleH = 40;
 constexpr int kTitleHitW = 150;
 constexpr int kTextBoxW = 56;
 constexpr int kTextBoxH = 18;
-constexpr int kHintH = 48;
+constexpr int kBarH = 28;
+constexpr int kHintH = 44;
 
 // What the knob does in each preset, shown under it so the one control explains itself.
 const char* const kHints[fn0b::kPresetCount] = {
@@ -195,7 +196,7 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
 
     knobHint.setJustificationType (juce::Justification::centred);
     knobHint.setColour (juce::Label::textColourId, kGrey);
-    knobHint.setFont (boldFont (18.f));
+    knobHint.setFont (boldFont (16.f));
     knobHint.setMinimumHorizontalScale (1.f);
     content.addAndMakeVisible (knobHint);
 
@@ -287,16 +288,16 @@ void fN0BAudioProcessorEditor::paintContent (juce::Graphics& g)
 void fN0BAudioProcessorEditor::layoutContent()
 {
     auto r = content.getLocalBounds().reduced (kPad);
-    auto title = r.removeFromTop (kTitleH);
-    title.removeFromLeft (kTitleHitW);
-    presetBar.setBounds (title.withSizeKeepingCentre (juce::jmin (240, title.getWidth()),
-                                                      title.getHeight()).reduced (2, 6));
-
+    r.removeFromTop (kTitleH);
     r.removeFromTop (4);
+    auto barRow = r.removeFromTop (kBarH);
     auto knobArea = r.removeFromTop (r.getHeight() - 40);
     const int d = juce::jmin (knobArea.getWidth(), knobArea.getHeight() - kTextBoxH - kHintH - 8);
     knob.setBounds (knobArea.withSizeKeepingCentre (d, d + kTextBoxH).translated (0, -8));
     knobHint.setBounds (knob.getBounds().withY (knob.getBottom() + 2).withHeight (kHintH));
+
+    auto well = knob.getBounds().expanded (18, 0);
+    presetBar.setBounds (well.getX(), barRow.getY() + 2, well.getWidth(), barRow.getHeight() - 4);
 }
 
 void fN0BAudioProcessorEditor::refreshBar()
