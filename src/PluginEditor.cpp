@@ -9,7 +9,7 @@ constexpr int kTitleH = 40;
 constexpr int kTitleHitW = 150;
 constexpr int kTextBoxW = 56;
 constexpr int kTextBoxH = 18;
-constexpr int kHintH = 32;
+constexpr int kHintH = 48;
 
 // What the knob does in each preset, shown under it so the one control explains itself.
 const char* const kHints[fn0b::kPresetCount] = {
@@ -57,10 +57,10 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
     g.setColour (juce::Colours::black.withAlpha (0.4f));
     g.fillEllipse (body.translated (0.f, d * 0.018f));
 
-    g.setGradientFill (juce::ColourGradient (kMint.brighter (0.18f), c.x, body.getY(),
-                                              kMint.darker (0.15f), c.x, body.getBottom(), false));
+    g.setGradientFill (juce::ColourGradient (kMint.darker (0.28f), c.x, body.getY(),
+                                              kMint.darker (0.48f), c.x, body.getBottom(), false));
     g.fillEllipse (body);
-    g.setColour (kLight.withAlpha (0.3f));
+    g.setColour (kMint.darker (0.55f).withAlpha (0.5f));
     g.drawEllipse (body.reduced (0.6f), juce::jmax (1.f, d * 0.012f));
 
     const float capD = bodyD * 0.5f;
@@ -72,7 +72,7 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
     juce::Path pointer;
     pointer.startNewSubPath (c.getPointOnCircumference (bodyD * 0.32f, angle));
     pointer.lineTo (c.getPointOnCircumference (bodyD * 0.46f, angle));
-    g.setColour (kLight);
+    g.setColour (kAmber);
     g.strokePath (pointer, juce::PathStrokeType (juce::jmax (1.15f, d * 0.028f),
                                                  juce::PathStrokeType::curved,
                                                  juce::PathStrokeType::rounded));
@@ -82,9 +82,9 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
     g.fillEllipse (pipC.x - pip * 0.5f, pipC.y - pip * 0.5f, pip, pip);
 }
 
-juce::Font fN0BAudioProcessorEditor::PanelLnF::getLabelFont (juce::Label&)
+juce::Font fN0BAudioProcessorEditor::PanelLnF::getLabelFont (juce::Label& label)
 {
-    return fn0b::boldFont (11.f);
+    return label.getFont();
 }
 
 void fN0BAudioProcessorEditor::PanelLnF::drawTooltip (juce::Graphics& g, const juce::String& text,
@@ -195,7 +195,8 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
 
     knobHint.setJustificationType (juce::Justification::centred);
     knobHint.setColour (juce::Label::textColourId, kGrey);
-    knobHint.setFont (boldFont (14.f));
+    knobHint.setFont (boldFont (18.f));
+    knobHint.setMinimumHorizontalScale (1.f);
     content.addAndMakeVisible (knobHint);
 
     presetBar.setTooltip ("Preset. Arrows step, click for the list.");
@@ -288,7 +289,8 @@ void fN0BAudioProcessorEditor::layoutContent()
     auto r = content.getLocalBounds().reduced (kPad);
     auto title = r.removeFromTop (kTitleH);
     title.removeFromLeft (kTitleHitW);
-    presetBar.setBounds (title.removeFromRight (240).reduced (2, 6));
+    presetBar.setBounds (title.withSizeKeepingCentre (juce::jmin (240, title.getWidth()),
+                                                      title.getHeight()).reduced (2, 6));
 
     r.removeFromTop (4);
     auto knobArea = r.removeFromTop (r.getHeight() - 40);

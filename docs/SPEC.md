@@ -52,7 +52,7 @@ Shipped in code. The knob-to-parameter mapping lives in `src/dsp/Presets.h`.
 Mint on deep teal-black. Do not invent another palette.
 
 - `#35e0a6` mint (accent, the knob flange and cap)
-- `#f2c14e` amber (ticks, selection)
+- `#f2c14e` amber (ticks, pointer, selection)
 - `#e8f5f0` near white (text)
 - `#7c918b` sage grey (secondary text, borders)
 - `#132020` panel

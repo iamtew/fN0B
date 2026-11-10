@@ -36,7 +36,7 @@ fN0B.jucer
 
 ## Colors
 - #35e0a6 Mint (accent, the knob flange and cap)
-- #f2c14e Amber (ticks, selection)
+- #f2c14e Amber (ticks, pointer, selection)
 - #e8f5f0 Near White (text)
 - #7c918b Sage Grey (secondary text, borders)
 - #132020 Panel
