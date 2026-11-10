@@ -129,7 +129,8 @@ struct Chain
                 // between knob steps, so a turn bends the pitch a little, which
                 // is what tape does.
                 const int chUsed = juce::jmin (ch, 2);
-                const float delaySamp = (float) sr * v.delayMs / 1000.f;
+                const float delaySamp = juce::jlimit (1.f, (float) Delay::kMaxSamples - 2.f,
+                                                       (float) sr * v.delayMs / 1000.f);
                 if (justChanged)
                     smooth[2].setCurrentAndTargetValue (delaySamp);
                 else
