@@ -47,6 +47,22 @@
     return known(id) ? id : "overview";
   }
 
+  function florin(root) {
+    var walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        var el = node.parentElement;
+        if (el && el.closest("code, pre, script, style, textarea"))
+          return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var node;
+    while ((node = walk.nextNode())) {
+      if (node.nodeValue.indexOf("fN0B") !== -1)
+        node.nodeValue = node.nodeValue.split("fN0B").join("\u0192N0B");
+    }
+  }
+
   function rewrite(root) {
     root.querySelectorAll("a[href]").forEach(function (link) {
       var href = link.getAttribute("href") || "";
@@ -77,7 +93,7 @@
       else link.removeAttribute("aria-current");
     });
     var page = pages.filter(function (item) { return item.id === id; })[0];
-    document.title = page.title + " | fN0B";
+    document.title = page.title + " | \u0192N0B";
     article.innerHTML = "<p class=\"muted\">Loading…</p>";
     var file = page.src || ("md/" + id + ".md");
     fetch(file)
@@ -88,6 +104,7 @@
       .then(function (md) {
         article.innerHTML = marked.parse(md);
         rewrite(article);
+        florin(article);
       })
       .catch(function () {
         article.innerHTML = "<p>Could not load this page.</p>";
