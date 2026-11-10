@@ -6,6 +6,7 @@ const SPIN = 0.75;    // rigid turn, rad/s
 const SPIRAL = 2.4;   // radians each arm wraps from rim to throat
 const SHEAR = 0.9;    // differential knead, radians; bounded so the arms stay readable
 const GULP = 5.5;     // seconds per swallow
+const FILL = 1.0;     // 1 inscribes the maw in the viewport; >1 crops the rim
 const ARMS = 9;
 const SAMPLES = 30;
 const TAU = Math.PI * 2;
@@ -153,8 +154,11 @@ function mawScene(PIXI, glow) {
       // One swallow per GULP, decaying fast so it reads as a gulp, not a beat.
       const env = Math.exp(-((t % GULP) / GULP) * 4.6);
       const spin = t * SPIN;
-      // The gulp also throws the whole maw at the viewer, then pulls it back.
-      const R = Math.min(w, h) * (fxOnly ? 0.66 : 0.46) * (1 + 0.09 * env);
+      // Size the maw to the viewport, not to min(w, h): the lens squash means the
+      // vertical extent is R * SQUASH, so both axes have to be considered. Taking
+      // the smaller of the two radii inscribes the ellipse, so the rim just
+      // touches one pair of viewport edges and nothing is cropped off.
+      const R = Math.min(w * 0.5, (h * 0.5) / SQUASH) * FILL * (1 + 0.04 * env);
       const Rin = R * 0.05;
       const cx = w * 0.5;
       const cy = h * (fxOnly ? 0.5 : 0.46);
@@ -197,8 +201,8 @@ function mawScene(PIXI, glow) {
       }
 
       // The slit opens when it eats.
-      const rx = R * 0.52 * (1 + 0.08 * env);
-      const ry = R * 0.15 * (1 + 0.45 * env);
+      const rx = R * 0.5 * (1 + 0.08 * env);
+      const ry = R * 0.13 * (1 + 0.45 * env);
       pupil.clear();
       pupil.ellipse(cx, cy, rx * 1.12, ry * 1.25).fill({ color: C.ink, alpha: 0.55 });
       pupil.ellipse(cx, cy, rx, ry).fill({ color: C.ink, alpha: 0.95 });
@@ -211,7 +215,7 @@ function mawScene(PIXI, glow) {
       // Hot seam: mint halo, white core flickering, amber under-fringe.
       core.clear();
       const seam = [];
-      const step = rx / 12;
+      const step = rx / Math.max(12, Math.round(rx / 22));
       for (let x = cx - rx; x <= cx + rx; x += step) {
         seam.push(x, cy + Math.sin(x * 0.02 + t * 3) * ry * 0.12);
       }
