@@ -4,6 +4,7 @@
 #include "parameters/ParameterLayout.h"
 
 #include <JuceHeader.h>
+#include <atomic>
 
 class fN0BAudioProcessor : public juce::AudioProcessor
 {
@@ -40,8 +41,17 @@ public:
     int presetIndex() const;
     float knobValue() const;
 
+    // Editor takes the peak (linear 0..) and zeros it. Audio thread only raises it.
+    float takePeakIn()  { return peakIn.exchange (0.f, std::memory_order_relaxed); }
+    float takePeakOut() { return peakOut.exchange (0.f, std::memory_order_relaxed); }
+
 private:
+    void applySmoothedGain (juce::AudioBuffer<float>&, juce::SmoothedValue<float>&);
+    void notePeak (std::atomic<float>& slot, const juce::AudioBuffer<float>&);
+
     fn0b::Chain chain;
+    juce::SmoothedValue<float> inGainSmooth, outGainSmooth;
+    std::atomic<float> peakIn { 0.f }, peakOut { 0.f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (fN0BAudioProcessor)
 };
