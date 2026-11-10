@@ -62,8 +62,9 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
     g.setColour (juce::Colours::black.withAlpha (0.4f));
     g.fillEllipse (body.translated (0.f, d * 0.018f));
 
-    g.setGradientFill (juce::ColourGradient (kMint.darker (0.28f), c.x, body.getY(),
-                                              kMint.darker (0.48f), c.x, body.getBottom(), false));
+    const auto flange = kMint.darker (0.40f);
+    g.setGradientFill (juce::ColourGradient (flange.brighter (0.14f), c.x, body.getY(),
+                                             flange.darker (0.22f), c.x, body.getBottom(), false));
     g.fillEllipse (body);
     g.setColour (kMint.darker (0.55f).withAlpha (0.5f));
     g.drawEllipse (body.reduced (0.6f), juce::jmax (1.f, d * 0.012f));
