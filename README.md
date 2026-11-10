@@ -6,6 +6,8 @@
 
 VST3. Stupid Audio. [MIT](LICENSE). Site: [docs/](docs/index.html). Manual: [docs/docs.html](docs/docs.html).
 
+The site backdrop is `docs/fx.js`, a PixiJS scene kept in sync with the other Stupid Audio sites. Add `?fx` to any page to preview it full screen with the page chrome hidden; `?fx=false` keeps the normal page.
+
 ## Release
 
 Windows, Linux, and macOS files come from GitHub Actions (`.github/workflows/dist.yml`). Run it from the Actions tab for artifacts only, or push a numeric tag such as `0.0.1` (no `v` prefix) to build and publish a GitHub Release with the files attached. `<version>` is the `version` in `fN0B.jucer`.
