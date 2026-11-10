@@ -35,8 +35,8 @@ fN0B.jucer
 - Chain order is per preset and is part of the sound. Do not make it configurable.
 
 ## Colors
-- #35e0a6 Mint (accent, the knob flange and body)
-- #f2c14e Amber (flutes, pointer, selection)
+- #35e0a6 Mint (accent, the knob flange and cap)
+- #f2c14e Amber (ticks, selection)
 - #e8f5f0 Near White (text)
 - #7c918b Sage Grey (secondary text, borders)
 - #132020 Panel
