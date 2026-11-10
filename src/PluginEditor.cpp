@@ -6,10 +6,9 @@ constexpr int kEditorW = 520;
 constexpr int kEditorH = 400;
 constexpr int kPad = 8;
 constexpr int kTitleH = 40;
-constexpr int kTitleHitW = 150;
+constexpr int kTitleHitW = 110;
 constexpr int kTextBoxW = 56;
 constexpr int kTextBoxH = 18;
-constexpr int kBarH = 28;
 constexpr int kHintH = 44;
 
 // What the knob does in each preset, shown under it so the one control explains itself.
@@ -287,17 +286,17 @@ void fN0BAudioProcessorEditor::paintContent (juce::Graphics& g)
 
 void fN0BAudioProcessorEditor::layoutContent()
 {
-    auto r = content.getLocalBounds().reduced (kPad);
-    r.removeFromTop (kTitleH);
-    r.removeFromTop (4);
-    auto barRow = r.removeFromTop (kBarH);
-    auto knobArea = r.removeFromTop (r.getHeight() - 40);
+    auto inner = content.getLocalBounds().reduced (kPad);
+    auto title = inner.removeFromTop (kTitleH);
+    auto knobArea = inner.removeFromTop (inner.getHeight() - 40);
     const int d = juce::jmin (knobArea.getWidth(), knobArea.getHeight() - kTextBoxH - kHintH - 8);
     knob.setBounds (knobArea.withSizeKeepingCentre (d, d + kTextBoxH).translated (0, -8));
-    knobHint.setBounds (knob.getBounds().withY (knob.getBottom() + 2).withHeight (kHintH));
 
     auto well = knob.getBounds().expanded (18, 0);
-    presetBar.setBounds (well.getX(), barRow.getY() + 2, well.getWidth(), barRow.getHeight() - 4);
+    presetBar.setBounds (well.getX(), title.getY() + 6, well.getWidth(), title.getHeight() - 12);
+
+    // Full inner width so the two-line hint is not ellipsized to the knob.
+    knobHint.setBounds (inner.getX(), knob.getBottom() + 2, inner.getWidth(), kHintH);
 }
 
 void fN0BAudioProcessorEditor::refreshBar()
