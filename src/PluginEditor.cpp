@@ -10,6 +10,11 @@ constexpr int kTitleHitW = 110;
 constexpr int kTextBoxW = 56;
 constexpr int kTextBoxH = 18;
 constexpr int kHintH = 44;
+constexpr int kHintGap = 14;
+constexpr int kGainColW = 48;
+constexpr int kGainLabelH = 14;
+constexpr int kWellExpandX = 18;
+constexpr int kWellExpandY = 10;
 
 // What the knob does in each preset, shown under it so the one control explains itself.
 const char* const kHints[fn0b::kPresetCount] = {
@@ -80,6 +85,46 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
     const float pip = juce::jmax (1.6f, d * 0.045f);
     const auto pipC = c.getPointOnCircumference (capD * 0.28f, angle);
     g.fillEllipse (pipC.x - pip * 0.5f, pipC.y - pip * 0.5f, pip, pip);
+}
+
+void fN0BAudioProcessorEditor::PanelLnF::drawLinearSlider (juce::Graphics& g, int x, int y, int w, int h,
+                                                           float sliderPos, float, float,
+                                                           juce::Slider::SliderStyle, juce::Slider& slider)
+{
+    using namespace fn0b;
+    auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h);
+    if (bounds.getHeight() < 8.f)
+        return;
+
+    const float wellW = 10.f;
+    auto well = bounds.withSizeKeepingCentre (wellW, juce::jmax (8.f, bounds.getHeight() - 4.f));
+
+    g.setColour (kInk);
+    g.fillRoundedRectangle (well, 3.f);
+    g.setColour (kGrey);
+    g.drawRoundedRectangle (well.reduced (0.5f), 3.f, 1.f);
+
+    const float meter = juce::jlimit (0.f, 1.f, (float) slider.getProperties().getWithDefault ("meter", 0.0));
+    if (meter > 0.001f)
+    {
+        auto fill = well.reduced (1.5f);
+        auto bar = fill.removeFromBottom (fill.getHeight() * meter);
+        g.setColour (meter > 0.95f ? kAmber : kMint.withAlpha (0.85f));
+        g.fillRoundedRectangle (bar, 2.f);
+    }
+
+    constexpr int nMarks = 7;
+    for (int i = 1; i < nMarks; ++i)
+    {
+        const float yy = well.getY() + well.getHeight() * ((float) i / (float) nMarks);
+        g.setColour (i == 1 ? kAmber.withAlpha (0.85f) : kGrey.withAlpha (0.55f));
+        g.drawLine (well.getX() - 3.f, yy, well.getRight() + 3.f, yy, 1.f);
+    }
+
+    const float th = 5.f, tw = 16.f;
+    auto thumb = juce::Rectangle<float> (bounds.getCentreX() - tw * 0.5f, sliderPos - th * 0.5f, tw, th);
+    g.setColour (kAmber);
+    g.fillRoundedRectangle (thumb, 2.f);
 }
 
 juce::Font fN0BAudioProcessorEditor::PanelLnF::getLabelFont (juce::Label& label)
@@ -193,6 +238,13 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
         proc.apvts, ParamID::knob, knob);
     content.addAndMakeVisible (knob);
 
+    setupGainSlider (inGain, ParamID::inputGain, "Input gain. Hits the signal before the preset.");
+    setupGainSlider (outGain, ParamID::outputGain, "Output gain. Hits the signal after the preset.");
+    inGainAtt = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
+        proc.apvts, ParamID::inputGain, inGain);
+    outGainAtt = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
+        proc.apvts, ParamID::outputGain, outGain);
+
     knobHint.setJustificationType (juce::Justification::centred);
     knobHint.setColour (juce::Label::textColourId, kGrey);
     knobHint.setFont (boldFont (16.f));
@@ -216,10 +268,27 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
     setResizeLimits (baseW * 2 / 5, baseH * 2 / 5, baseW * 3 / 2, baseH * 3 / 2);
     getConstrainer()->setFixedAspectRatio ((double) baseW / (double) baseH);
     setSize (baseW, baseH);
+
+    startTimerHz (30);
+}
+
+void fN0BAudioProcessorEditor::setupGainSlider (juce::Slider& s, const char* paramId, const juce::String& tooltipText)
+{
+    using namespace fn0b;
+    s.setSliderStyle (juce::Slider::LinearVertical);
+    s.setTextBoxStyle (juce::Slider::TextBoxBelow, false, kGainColW, kTextBoxH);
+    s.setColour (juce::Slider::textBoxTextColourId, kLight);
+    s.setColour (juce::Slider::textBoxBackgroundColourId, kInk);
+    s.setColour (juce::Slider::textBoxOutlineColourId, kGrey);
+    s.setTooltip (tooltipText);
+    if (auto* prm = dynamic_cast<juce::RangedAudioParameter*> (proc.apvts.getParameter (paramId)))
+        s.setDoubleClickReturnValue (true, prm->convertFrom0to1 (prm->getDefaultValue()));
+    content.addAndMakeVisible (s);
 }
 
 fN0BAudioProcessorEditor::~fN0BAudioProcessorEditor()
 {
+    stopTimer();
     setLookAndFeel (nullptr);
 }
 
@@ -263,11 +332,20 @@ void fN0BAudioProcessorEditor::paintContent (juce::Graphics& g)
     g.drawRoundedRectangle (content.getLocalBounds().toFloat().reduced (1.5f), 2.f, 2.f);
 
     // The knob well, so the one control has a frame.
-    auto well = knob.getBounds().toFloat().expanded (18.f, 10.f);
+    auto well = knob.getBounds().toFloat().expanded ((float) kWellExpandX, (float) kWellExpandY);
     g.setColour (kPanel);
     g.fillRoundedRectangle (well, 6.f);
     g.setColour (kGrey);
     g.drawRoundedRectangle (well.reduced (0.5f), 6.f, 1.f);
+
+    g.setColour (kGrey);
+    g.setFont (boldFont (10.f));
+    g.drawText ("IN", juce::Rectangle<int> (inGain.getX(), inGain.getY() - kGainLabelH,
+                                            inGain.getWidth(), kGainLabelH),
+                juce::Justification::centred, false);
+    g.drawText ("OUT", juce::Rectangle<int> (outGain.getX(), outGain.getY() - kGainLabelH,
+                                             outGain.getWidth(), kGainLabelH),
+                juce::Justification::centred, false);
 
     // Decorative curve: the classic one-knob "more" ramp.
     auto ramp = content.getLocalBounds().reduced (kPad).removeFromBottom (34);
@@ -288,15 +366,36 @@ void fN0BAudioProcessorEditor::layoutContent()
 {
     auto inner = content.getLocalBounds().reduced (kPad);
     auto title = inner.removeFromTop (kTitleH);
-    auto knobArea = inner.removeFromTop (inner.getHeight() - 40);
-    const int d = juce::jmin (knobArea.getWidth(), knobArea.getHeight() - kTextBoxH - kHintH - 8);
-    knob.setBounds (knobArea.withSizeKeepingCentre (d, d + kTextBoxH).translated (0, -8));
+    knobHint.setBounds (inner.removeFromBottom (kHintH));
+    inner.removeFromBottom (kWellExpandY + kHintGap);
 
-    auto well = knob.getBounds().expanded (18, 0);
+    auto left = inner.removeFromLeft (kGainColW);
+    auto right = inner.removeFromRight (kGainColW);
+    left.removeFromTop (kGainLabelH);
+    right.removeFromTop (kGainLabelH);
+    inGain.setBounds (left);
+    outGain.setBounds (right);
+
+    const int d = juce::jmin (inner.getWidth(), inner.getHeight() - kTextBoxH);
+    knob.setBounds (inner.withSizeKeepingCentre (d, d + kTextBoxH));
+
+    auto well = knob.getBounds().expanded (kWellExpandX, 0);
     presetBar.setBounds (well.getX(), title.getY() + 6, well.getWidth(), title.getHeight() - 12);
+}
 
-    // Full inner width so the two-line hint is not ellipsized to the knob.
-    knobHint.setBounds (inner.getX(), knob.getBottom() + 2, inner.getWidth(), kHintH);
+void fN0BAudioProcessorEditor::timerCallback()
+{
+    auto toMeter = [] (float peak, float& vis)
+    {
+        vis = juce::jmax (peak, vis * 0.72f);
+        const float db = juce::Decibels::gainToDecibels (vis, -60.f);
+        return juce::jlimit (0.f, 1.f, (db + 60.f) / 60.f);
+    };
+
+    inGain.getProperties().set ("meter", toMeter (proc.takePeakIn(), inMeter));
+    outGain.getProperties().set ("meter", toMeter (proc.takePeakOut(), outMeter));
+    inGain.repaint();
+    outGain.repaint();
 }
 
 void fN0BAudioProcessorEditor::refreshBar()
