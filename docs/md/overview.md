@@ -1,6 +1,6 @@
 # One knob, one sound
 
-fN0B is a preset player. You choose a preset, and you turn one knob. That is the entire plugin.
+fN0B is a preset player. You choose a preset, and you turn one knob. That is the musical plugin. The sliders on the sides are input and output trim, not extra knobs: they only set how loud the signal is going in and coming out.
 
 A preset is either a single effect or a short chain of them. The knob does not control one parameter; it moves three or four together in a way that was tuned to sound good from one end to the other. So you never have to know what is under the hood. You turn it up, and it gets better.
 

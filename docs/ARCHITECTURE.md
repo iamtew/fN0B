@@ -1,19 +1,21 @@
 # Architecture
 
-PluginProcessor owns the APVTS and one Chain. The editor owns a knob and a preset bar.
+PluginProcessor owns the APVTS and one Chain. The editor owns a knob, a preset bar, and in/out trim sliders that also meter.
 
 Audio thread:
 
-1. Read the preset index and the knob value from the APVTS
-2. Resolve them to a set of unit parameters via `fn0b::voiceFor`
-3. Run the preset's chain over the buffer, in the order that preset specifies
-4. Write the result back in place
+1. Apply input gain (smoothed) to the buffer, then note the input peak
+2. Read the preset index and the knob value from the APVTS
+3. Resolve them to a set of unit parameters via `fn0b::voiceFor`
+4. Run the preset's chain over the buffer, in the order that preset specifies
+5. Apply output gain (smoothed), then note the output peak
+6. Write the result back in place
 
 The chain is a `switch` on the preset, not a graph. Each preset hardcodes its own order, because the order is part of what the preset sounds like: Warm Drive clips before it filters, Filter Funk filters before it clips.
 
 Message thread:
 
-- The editor draws the knob and the preset bar. Nothing else.
+- The editor draws the knob, the preset bar, and the in/out sliders. Slider wells are meters (post-gain peaks).
 - About box checks GitHub tags on a detached thread, result hopped back with `callAsync`.
 
 ## Files

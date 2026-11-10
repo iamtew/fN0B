@@ -2,7 +2,7 @@
 
 Spec: [docs/SPEC.md](docs/SPEC.md).
 
-Single knob effect. Pick a preset, turn the knob. VST3. Part of Stupid Audio; sister of fR3Z0.
+Single knob effect. Pick a preset, turn the knob. In/out trim are sliders, not knobs. VST3. Part of Stupid Audio; sister of fR3Z0.
 
 ## Stack
 - JUCE (Projucer workflow only – no CMake)
@@ -30,7 +30,7 @@ fN0B.jucer
 - `just build-dist` names the zip and MSI from the jucer version.
 
 ## Presets
-- A preset is one effect or a short chain; the knob or the preset selector is all the user gets.
+- A preset is one effect or a short chain; the knob or the preset selector is the musical control. In/out sliders are trim only.
 - The knob-to-parameter mapping lives in `src/dsp/Presets.h` and stays JUCE-free so `tests/fn0b_check.cpp` can compile it with plain `cl`.
 - Chain order is per preset and is part of the sound. Do not make it configurable.
 

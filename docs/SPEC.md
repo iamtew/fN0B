@@ -4,7 +4,7 @@ This file is the product spec.
 
 Single-knob effect. A preset is one effect or a short chain, and the knob moves that preset's key parameters together. Sister of fR3Z0, part of Stupid Audio. MIT.
 
-- One knob, one preset selector, nothing else
+- One knob, one preset selector, plus in/out trim sliders (not extra knobs)
 - Presets are fixed chains, tuned so every knob position sounds musical
 - Not a generic effect host, not a modular rack
 
