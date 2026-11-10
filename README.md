@@ -24,3 +24,5 @@ The MSI installs the VST3 into `Common Files\VST3` by default; the folder can be
 The Mac zip is ad-hoc signed, not notarized. Gatekeeper blocks it until you right-click Open, or run `xattr -dr com.apple.quarantine` on the `.vst3`. The Linux build uses the system ALSA, FreeType, fontconfig, and X11 libraries.
 
 `just build-dist` on Windows writes the VST3 zip and the MSI. Building the MSI needs the .NET 8 SDK.
+
+`just docs-screenshots` overwrites `docs/Screenshot1.png` and `docs/Screenshot2.png`. Needs a debug standalone (`just build-debug`) and an interactive desktop.

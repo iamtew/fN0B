@@ -21,6 +21,10 @@ resave:
     # OneDrive can lag the sln behind "Finished saving".
     $n=0; while (-not (Test-Path '{{SOLUTION}}') -and $n -lt 20) { Start-Sleep -Milliseconds 250; $n++ }
 
+# Debug standalone must already exist. Interactive desktop only.
+docs-screenshots:
+    & './scripts/docs-screenshots.ps1'
+
 # assets/logo.png is the Affinity export. Source of truth. Never write that file.
 # Derived: docs/logo.png (320, linear Lanczos EWA), Builds/.../icon.ico, then wipe .res so the next build relinks it.
 # `just resave` does not refresh icon.ico when the PNG changes.
