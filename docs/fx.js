@@ -3,10 +3,11 @@ const C = { mint: 0x35e0a6, amber: 0xf2c14e, light: 0xe8f5f0, grey: 0x7c918b, in
   silver: 0x9fb5ae };  // sage lifted toward white, for the rim and the deep strands
 const SQUASH = 0.38;  // lens squash: the maw is wider than it is tall
 const SPIN = 0.75;    // rigid turn, rad/s
+const ROT = 0.3;      // rotation clock multiplier; slows the churn, not the gulp
 const SPIRAL = 2.4;   // radians each arm wraps from rim to throat
 const SHEAR = 0.9;    // differential knead, radians; bounded so the arms stay readable
 const GULP = 5.5;     // seconds per swallow
-const FILL = 1.0;     // 1 inscribes the maw in the viewport; >1 crops the rim
+const FILL = 1.08;    // 1 inscribes the maw; a little over 1 lets the rim bleed past the edges
 const ARMS = 9;
 const SAMPLES = 30;
 const TAU = Math.PI * 2;
@@ -117,16 +118,20 @@ function glowLine(g, pts, color, scale = 1, passes = GLOW_PASSES) {
 // Dim body under a bright head that runs inward: the eating read.
 const BODY_PASSES = [[18, 0.05], [8, 0.13], [2.2, 0.5]];
 const HEAD_PASSES = [[18, 0.12], [7, 0.4], [2.2, 1]];
+// Background waveforms stay faint enough to read as texture, not as content.
+const WAVE_PASSES = [[14, 0.03], [6, 0.07], [1.6, 0.18]];
 const ARM_COLORS = [C.mint, C.mint, C.amber, C.grey, C.mint, C.amber, C.mint, C.grey, C.mint];
 
 // A wide horizontal funnel. Strands shear against each other, debris spirals in,
 // and the ink slit swallows both on every gulp.
 function mawScene(PIXI, glow) {
   const root = new PIXI.Container();
+  const waves = new PIXI.Graphics();
   const arms = new PIXI.Graphics();
   const pupil = new PIXI.Graphics();
   const core = new PIXI.Graphics();
   const shock = new PIXI.Graphics();
+  waves.blendMode = 'add';
   arms.blendMode = 'add';
   core.blendMode = 'add';
   shock.blendMode = 'add';
@@ -145,7 +150,7 @@ function mawScene(PIXI, glow) {
   bloom.alpha = 0;
 
   // Order matters: the slit has to swallow the strands and the debris.
-  root.addChild(arms, ...debris, pupil, bloom, core, shock);
+  root.addChild(waves, arms, ...debris, pupil, bloom, core, shock);
   root.alpha = fxOnly ? 1 : 0.62;
 
   return {
@@ -153,7 +158,9 @@ function mawScene(PIXI, glow) {
     update(t, w, h, dt) {
       // One swallow per GULP, decaying fast so it reads as a gulp, not a beat.
       const env = Math.exp(-((t % GULP) / GULP) * 4.6);
-      const spin = t * SPIN;
+      // Rotation runs on its own clock: ROT slows the churn without slowing the swallow.
+      const ts = t * ROT;
+      const spin = ts * SPIN;
       // Size the maw to the viewport, not to min(w, h): the lens squash means the
       // vertical extent is R * SQUASH, so both axes have to be considered. Taking
       // the smaller of the two radii inscribes the ellipse, so the rim just
@@ -167,9 +174,9 @@ function mawScene(PIXI, glow) {
       // what makes neighbouring strands knead against each other instead of
       // turning like one rigid record. The ripple keeps them organic, not CAD.
       const at = (a, u) => {
-        const wob = 1 + 0.05 * Math.sin(u * 9 - t * 1.7 + a * 1.9);
+        const wob = 1 + 0.05 * Math.sin(u * 9 - ts * 1.7 + a * 1.9);
         const r = (Rin + (R - Rin) * u) * wob;
-        const th = (a / ARMS) * TAU - SPIRAL * u - spin - SHEAR * Math.sin(t * 1.1 - u * 3.4);
+        const th = (a / ARMS) * TAU - SPIRAL * u - spin - SHEAR * Math.sin(ts * 1.1 - u * 3.4);
         return [cx + Math.cos(th) * r, cy + Math.sin(th) * r * SQUASH];
       };
 
@@ -186,7 +193,7 @@ function mawScene(PIXI, glow) {
         // Two bright heads per strand, sliding rim -> throat. Each is its own
         // short polyline; a shared point list would chord across the gaps.
         for (let p = 0; p < 2; p++) {
-          const u = 1 - ((t * 0.26 + a * 0.19 + p * 0.5) % 1);
+          const u = 1 - ((ts * 0.26 + a * 0.19 + p * 0.5) % 1);
           const seg = [
             ...at(a, Math.min(1, u + 0.045)),
             ...at(a, u),
@@ -198,6 +205,29 @@ function mawScene(PIXI, glow) {
       // Rim ellipses: depth, and a horizon for the funnel.
       for (const [rr, alpha] of [[R, 0.16], [R * 0.62, 0.09], [R * 1.1, 0.05]]) {
         arms.ellipse(cx, cy, rr, rr * SQUASH).stroke({ width: 1, color: C.silver, alpha });
+      }
+
+      // Quiet waveforms in the bands the maw leaves empty, travelling left to
+      // right so the frame keeps moving out there without competing with it.
+      // Positions come from the real gap above and below the rim, and a band is
+      // skipped when the maw already covers that space.
+      waves.clear();
+      const half = R * SQUASH;
+      const bands = [
+        { gap: cy - half, at: cy - half - (cy - half) * 0.5, color: C.grey, speed: 1.5, phase: 0 },
+        { gap: h - cy - half, at: cy + half + (h - cy - half) * 0.5, color: C.mint, speed: 2.4, phase: 2.1 },
+      ];
+      for (const b of bands) {
+        if (b.gap < h * 0.05) continue;
+        const pts = [];
+        const spread = Math.min(h * 0.045, b.gap * 0.42);
+        for (let x = -20; x <= w + 20; x += 6) {
+          const u = x / w;
+          // Taper at both ends so the line fades in and out, never gets cut off.
+          const taper = Math.sin(Math.PI * u);
+          pts.push(x, b.at + spread * Math.sin(u * 9 - ts * b.speed + b.phase) * taper);
+        }
+        glowLine(waves, pts, b.color, 1, WAVE_PASSES);
       }
 
       // The slit opens when it eats.
@@ -217,7 +247,7 @@ function mawScene(PIXI, glow) {
       const seam = [];
       const step = rx / Math.max(12, Math.round(rx / 22));
       for (let x = cx - rx; x <= cx + rx; x += step) {
-        seam.push(x, cy + Math.sin(x * 0.02 + t * 3) * ry * 0.12);
+        seam.push(x, cy + Math.sin(x * 0.02 + ts * 3) * ry * 0.12);
       }
       glowLine(core, seam, C.mint, 1.9, [[30, 0.06], [12, 0.14]]);
       glowLine(core, [cx - rx, cy + ry * 0.5, cx + rx, cy + ry * 0.5], C.amber, 0.8, [[8, 0.10], [2, 0.35]]);
@@ -238,14 +268,14 @@ function mawScene(PIXI, glow) {
             s.th = rand(0, TAU);
             s.su = rand(0.04, 0.15);
           }
-          s.th -= (SPIN + 0.9 / (0.3 + s.u)) * dt;
+          s.th -= (SPIN + 0.9 / (0.3 + s.u)) * ROT * dt;
         }
         const r = Rin + (R - Rin) * s.u;
         const ct = Math.cos(s.th), st = Math.sin(s.th);
         s.x = cx + ct * r;
         s.y = cy + st * r * SQUASH;
         // Streak along the actual travel: tangential plus inward.
-        const om = SPIN + 0.9 / (0.3 + s.u);
+        const om = (SPIN + 0.9 / (0.3 + s.u)) * ROT;
         const vr = (R - Rin) * s.su;
         s.rotation = Math.atan2(-ct * r * SQUASH * om - st * SQUASH * vr, st * r * om - ct * vr);
         const wpx = s.size * R * (0.05 + 0.2 * s.u);
