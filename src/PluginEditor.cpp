@@ -34,52 +34,58 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
 
     auto area = bounds.withSizeKeepingCentre (d, d);
     const auto c = area.getCentre();
-    const float tickW = juce::jmax (1.f, d * 0.018f);
+    const float angle = startAngle + pos * (endAngle - startAngle);
 
-    // Ticks around the sweep.
-    g.setColour (kLight.withAlpha (0.75f));
+    // Shadow: two offset ellipses, not a DropShadow (which goes soft under the scale transform).
+    const float flangeD = d * 0.86f;
+    auto flange = area.withSizeKeepingCentre (flangeD, flangeD);
+    g.setColour (juce::Colours::black.withAlpha (0.22f));
+    g.fillEllipse (flange.translated (0.f, d * 0.04f).expanded (d * 0.01f));
+    g.setColour (juce::Colours::black.withAlpha (0.4f));
+    g.fillEllipse (flange.translated (0.f, d * 0.018f));
+
+    g.setGradientFill (juce::ColourGradient (kMint.brighter (0.08f), c.x, flange.getY(),
+                                              kMint.darker (0.18f), c.x, flange.getBottom(), false));
+    g.fillEllipse (flange);
+
+    const float tickW = juce::jmax (1.f, d * 0.018f);
+    g.setColour (kAmber);
     constexpr int nTicks = 11;
     for (int i = 0; i < nTicks; ++i)
     {
         const float t = (float) i / (float) (nTicks - 1);
         const float a = startAngle + t * (endAngle - startAngle);
-        const auto p0 = c.getPointOnCircumference (d * 0.48f, a);
-        const auto p1 = c.getPointOnCircumference (d * 0.40f, a);
+        const auto p0 = c.getPointOnCircumference (flangeD * 0.48f, a);
+        const auto p1 = c.getPointOnCircumference (flangeD * 0.40f, a);
         g.drawLine (p0.x, p0.y, p1.x, p1.y, tickW);
     }
 
-    // Shadow: two offset ellipses, not a DropShadow (which goes soft under the scale transform).
-    const float bodyD = d * 0.72f;
+    const float bodyD = d * 0.68f;
     auto body = area.withSizeKeepingCentre (bodyD, bodyD);
-    g.setColour (juce::Colours::black.withAlpha (0.22f));
-    g.fillEllipse (body.translated (0.f, d * 0.04f).expanded (d * 0.01f));
-    g.setColour (juce::Colours::black.withAlpha (0.4f));
-    g.fillEllipse (body.translated (0.f, d * 0.018f));
-
-    g.setGradientFill (juce::ColourGradient (kPanel.brighter (0.18f), c.x, body.getY(),
-                                              kInk, c.x, body.getBottom(), false));
+    g.setColour (kInk);
+    g.drawEllipse (body.expanded (d * 0.012f), juce::jmax (1.2f, d * 0.018f));
+    g.setGradientFill (juce::ColourGradient (kMint.brighter (0.22f), c.x, body.getY(),
+                                              kMint.darker (0.12f), c.x, body.getBottom(), false));
     g.fillEllipse (body);
-    g.setColour (kLight.withAlpha (0.3f));
-    g.drawEllipse (body.reduced (0.6f), juce::jmax (1.f, d * 0.012f));
 
-    // Cap: the one saturated element, mint.
-    const float capD = bodyD * 0.5f;
-    auto cap = area.withSizeKeepingCentre (capD, capD);
-    g.setColour (kMint);
-    g.fillEllipse (cap);
+    constexpr int nFlutes = 14;
+    const float fluteW = juce::jmax (1.f, d * 0.014f);
+    g.setColour (kAmber.withAlpha (0.85f));
+    for (int i = 0; i < nFlutes; ++i)
+    {
+        const float a = angle + (float) i * juce::MathConstants<float>::twoPi / (float) nFlutes;
+        const auto p0 = c.getPointOnCircumference (bodyD * 0.12f, a);
+        const auto p1 = c.getPointOnCircumference (bodyD * 0.46f, a);
+        g.drawLine (p0.x, p0.y, p1.x, p1.y, fluteW);
+    }
 
-    const float angle = startAngle + pos * (endAngle - startAngle);
     juce::Path pointer;
-    pointer.startNewSubPath (c.getPointOnCircumference (bodyD * 0.32f, angle));
+    pointer.startNewSubPath (c.getPointOnCircumference (bodyD * 0.06f, angle));
     pointer.lineTo (c.getPointOnCircumference (bodyD * 0.46f, angle));
-    g.setColour (kLight);
-    g.strokePath (pointer, juce::PathStrokeType (juce::jmax (1.15f, d * 0.028f),
+    g.setColour (kAmber);
+    g.strokePath (pointer, juce::PathStrokeType (juce::jmax (2.f, d * 0.045f),
                                                  juce::PathStrokeType::curved,
                                                  juce::PathStrokeType::rounded));
-
-    const float pip = juce::jmax (1.6f, d * 0.045f);
-    const auto pipC = c.getPointOnCircumference (capD * 0.28f, angle);
-    g.fillEllipse (pipC.x - pip * 0.5f, pipC.y - pip * 0.5f, pip, pip);
 }
 
 juce::Font fN0BAudioProcessorEditor::PanelLnF::getLabelFont (juce::Label&)
