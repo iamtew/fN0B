@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UpgradeCode stays fixed so a newer MSI replaces this install. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="fN0B"
+           Manufacturer="Stupid Audio"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="7D2B4C61-9E38-4F0A-B5C7-1A8E6D3F2B90"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of fN0B is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <Icon Id="Fn0bIcon" SourceFile="!(bindpath.Icon)icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Fn0bIcon" />
+
+    <ui:WixUI Id="WixUI_InstallDir" />
+
+    <StandardDirectory Id="CommonFiles6432Folder">
+      <Directory Id="VST3DIR" Name="VST3">
+        <Directory Id="Vst3Bundle" Name="fN0B.vst3" />
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="Vst3Files" Directory="Vst3Bundle">
+      <Files Include="!(bindpath.Vst3)**" />
+    </ComponentGroup>
+
+    <Feature Id="Vst3Feature" Title="VST3" Level="1" ConfigurableDirectory="VST3DIR"
+             Description="VST3 plugin. Default folder is Common Files\VST3.">
+      <ComponentGroupRef Id="Vst3Files" />
+    </Feature>
+  </Package>
+</Wix>
