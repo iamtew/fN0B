@@ -35,12 +35,13 @@ icon: docs-logo
     $dir = 'Builds\VisualStudio2022'; $pngs = @(); foreach ($s in 256,128,64,48,32,16) { $out = Join-Path $dir ("_ico{0}.png" -f $s); magick assets/logo.png -background none -colorspace RGB -filter Lanczos +distort Resize ${s}x${s} -unsharp 0x0.5+0.5+0.008 -colorspace sRGB PNG32:$out; $pngs += $out }; magick @pngs (Join-Path $dir 'icon.ico'); $pngs | Remove-Item -Force
     Get-ChildItem Builds\VisualStudio2022 -Recurse -Filter resources.res | Remove-Item -Force
 
-# Debug builds VST3 and the standalone (inspection / screenshots). Release is VST3 only.
+# Debug and Release both build the solution (VST3 + standalone). Dist only ships the VST3.
+# /t:fN0B_VST3 is not a solution target; MSBuild then looks for it in every project and fails.
 build-debug: resave
     & '{{MSBUILD}}' {{SOLUTION}} /p:Configuration=Debug /p:Platform=x64 /m
 
 build-release: resave
-    & '{{MSBUILD}}' {{SOLUTION}} /t:fN0B_VST3 /p:Configuration=Release /p:Platform=x64 /m
+    & '{{MSBUILD}}' {{SOLUTION}} /p:Configuration=Release /p:Platform=x64 /m
 
 build-dist: build-release
     if (Test-Path dist) { Remove-Item dist -Recurse -Force }
