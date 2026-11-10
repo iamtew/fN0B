@@ -31,11 +31,12 @@ icon: docs-logo
     magick assets/logo.png -background none -colorspace RGB -filter Lanczos -define icon:auto-resize=256,128,64,48,32,16 Builds\VisualStudio2022\icon.ico
     Get-ChildItem Builds\VisualStudio2022 -Recurse -Filter resources.res | Remove-Item -Force
 
+# Debug builds VST3 and the standalone (inspection / screenshots). Release is VST3 only.
 build-debug: resave
     & '{{MSBUILD}}' {{SOLUTION}} /p:Configuration=Debug /p:Platform=x64 /m
 
 build-release: resave
-    & '{{MSBUILD}}' {{SOLUTION}} /p:Configuration=Release /p:Platform=x64 /m
+    & '{{MSBUILD}}' {{SOLUTION}} /t:fN0B_VST3 /p:Configuration=Release /p:Platform=x64 /m
 
 build-dist: build-release
     if (Test-Path dist) { Remove-Item dist -Recurse -Force }

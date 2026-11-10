@@ -3,7 +3,7 @@
 <JUCERPROJECT name="fN0B" companyName="Stupid Audio" version="0.0.1" userNotes="Single knob effect."
               projectType="audioplug" pluginAUIsSandboxSafe="1" pluginManufacturer="Stupid Audio"
               pluginManufacturerCode="Ssys" pluginCode="Fn0b" cppLanguageStandard="17"
-              pluginFormats="buildVST3"
+              pluginFormats="buildVST3,buildStandalone"
               useAppConfig="0" addUsingNamespaceToJuceHeader="1" id="fn0bPrj1"
               jucerFormatVersion="1">
   <MAINGROUP id="fn0bMain" name="fN0B">

@@ -104,7 +104,7 @@ jobs:
 
       - name: Build and pack
         run: |
-          make -C Builds/LinuxMakefile -j"$(nproc)" CONFIG=Release
+          make -C Builds/LinuxMakefile -j"$(nproc)" CONFIG=Release VST3
           ver=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('fN0B.jucer').getroot().attrib['version'])")
           mkdir -p dist
           (cd Builds/LinuxMakefile/build && zip -r "$GITHUB_WORKSPACE/dist/fN0B-$ver-linux-x64-vst3.zip" fN0B.vst3)
@@ -150,7 +150,7 @@ jobs:
       - name: Build, sign, and pack
         run: |
           xcodebuild -project Builds/MacOSX/fN0B.xcodeproj \
-            -configuration Release -target "fN0B - All" ONLY_ACTIVE_ARCH=NO
+            -configuration Release -target "fN0B - VST3" ONLY_ACTIVE_ARCH=NO
           vst3="Builds/MacOSX/build/Release/fN0B.vst3"
           test -d "$vst3"
           codesign --force --sign - --deep "$vst3"
