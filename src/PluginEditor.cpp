@@ -186,6 +186,8 @@ fN0BAudioProcessorEditor::fN0BAudioProcessorEditor (fN0BAudioProcessor& p)
     panelLnF.setColour (juce::TooltipWindow::outlineColourId, kMint);
 
     logo = juce::ImageCache::getFromMemory (BinaryData::logo_png, BinaryData::logo_pngSize);
+    if (logo.isValid())
+        logo = logo.rescaled (kTitleH * 2, kTitleH * 2, juce::Graphics::highResamplingQuality);
 
     knob.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
     knob.setTextBoxStyle (juce::Slider::TextBoxBelow, false, kTextBoxW, kTextBoxH);
@@ -252,6 +254,7 @@ void fN0BAudioProcessorEditor::paintContent (juce::Graphics& g)
     if (logo.isValid())
     {
         auto logoR = title.removeFromLeft (kTitleH).reduced (2);
+        g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
         g.drawImage (logo, logoR.toFloat(), juce::RectanglePlacement::centred);
         title.removeFromLeft (6);
     }
