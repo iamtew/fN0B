@@ -16,6 +16,7 @@
     <Icon Id="Fn0bIcon" SourceFile="!(bindpath.Icon)icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="Fn0bIcon" />
 
+    <Property Id="WIXUI_INSTALLDIR" Value="VST3DIR" />
     <ui:WixUI Id="WixUI_InstallDir" />
 
     <StandardDirectory Id="CommonFiles6432Folder">
