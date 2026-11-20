@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="fN0B" companyName="Stupid Audio" version="0.0.1" userNotes="Single knob effect."
+<JUCERPROJECT name="fN0B" companyName="Stupid Audio" version="0.0.2" userNotes="Single knob effect."
               projectType="audioplug" pluginAUIsSandboxSafe="1" pluginManufacturer="Stupid Audio"
               pluginManufacturerCode="Ssys" pluginCode="Fn0b" cppLanguageStandard="17"
               pluginFormats="buildVST3,buildStandalone"
