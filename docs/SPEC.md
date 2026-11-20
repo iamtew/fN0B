@@ -12,7 +12,7 @@ Single-knob effect. A preset is one effect or a short chain, and the knob moves 
 
 - VST3
 - Stereo in, stereo out. No MIDI, no sidechain, no extra buses.
-- Knob is 0..1, shown as a percentage. Double-click resets to 0%.
+- Knob is stored 0..1. Unipolar presets show 0–100% (7 o'clock to 5 o'clock); double-click resets to 0%. Bipolar presets (31–40) show −100%…+100% with noon at rest; double-click resets to noon.
 - Preset bar: arrows step, middle opens the list
 - Window scales 40–150%, aspect locked
 - About + GitHub tag check (title-bar name + version)
@@ -61,6 +61,16 @@ Shipped in code. The knob-to-parameter mapping lives in `src/dsp/Presets.h`. Ind
 | Circuit Melt | ring mod → crush → screaming filter | ring Hz, crush, cutoff+res |
 | Echo Psychosis | triple delay + pitch drift + shared FB | time scale, drift, feedback |
 | Singularity | pitch up → grain cloud → FDN freeze | height, grain density/size, freeze |
+| Filter Fork | resonant LP vs resonant HP | noon open; left LP 20 kHz→200 Hz; right HP 20 Hz→2.5 kHz |
+| Tiltfork | tilt EQ | noon flat; left −8 dB; right +8 dB |
+| Width Rift | stereo width | noon 100%; left → mono; right → 180% |
+| Pitch Pendulum | pitch shifter | noon dry; left → −12 st; right → +12 st; mix follows throw |
+| Backspin | reverse vs forward delay | noon dry; left reverse 40→300 ms; right delay 40→450 ms |
+| Halo Rail | chorus vs flange | noon light chorus; left halo; right rail |
+| Hollow Jet | 6-stage phaser, signed FB | noon mild sweep; left hollow (−FB); right jet (+FB) |
+| Rust Chrome | crush+wow vs shelf+exciter | noon clean; left rust; right chrome |
+| Squeeze Bloom | peak comp vs short FDN | noon bypass; left squeeze; right bloom |
+| Satin Fold | soft clip vs wavefold | noon clean; left satin; right fold |
 
 ## Do not
 

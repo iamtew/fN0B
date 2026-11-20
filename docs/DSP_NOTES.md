@@ -13,3 +13,4 @@ The product is the sound. JUCE `dsp` is a convenience, not a ceiling. Custom uni
 - Preset changes reset delay/reverb/phaser/grain state and snap the smoothers so the new chain starts settled rather than sliding in.
 - Nothing here allocates, locks, or calls into the system on the audio thread. Filters are prepared in `prepareToPlay`; FDN and delay lines are fixed arrays on the Chain.
 - Dry/wet is implicit unless that preset is a space sitting on the dry signal. The knob already covers subtle to extreme.
+- Bipolar presets (31–40) keep the stored knob at 0..1. Throw is `2k − 1`; noon is rest. Halo Rail is the exception: noon is a light chorus, not dry.

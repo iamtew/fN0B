@@ -2,7 +2,7 @@
 
 The preset bar at the top shows the current preset. The arrows on either end step through the list, and clicking the middle opens it directly.
 
-fN0B ships thirty-one. The first six keep their original indices so old sessions do not jump.
+fN0B ships forty-one. The first six keep their original indices so old sessions do not jump. Presets 31–40 are bipolar: noon is rest, left and right are opposite characters.
 
 ## Warm Drive
 
@@ -263,3 +263,84 @@ Pitch up, a grain cloud, FDN with freeze.
 - Height, grain density and size, freeze
 
 Launched, shattered, frozen into the void.
+
+## Filter Fork
+
+Resonant low-pass one way, resonant high-pass the other. Noon is both filters open.
+
+- Left: cutoff 20 kHz to 200 Hz, resonance 0.2 to 0.7
+- Right: high-pass 20 Hz to 2.5 kHz, resonance 0.2 to 0.7
+
+DJ filter on one knob. Dark, then open, then thin.
+
+## Tiltfork
+
+A tone see-saw. Distinct from Hypercolor, which only goes bright and also widens and excites.
+
+- Left: tilt −8 dB (bass up, treble down)
+- Noon: flat
+- Right: tilt +8 dB (treble up, bass down)
+
+## Width Rift
+
+Image in or image out. Noon is the record as it landed.
+
+- Left: width 100% to 0% (mono)
+- Right: width 100% to 180%
+
+## Pitch Pendulum
+
+Octave door. Gravity Well only dives; Singularity only climbs.
+
+- Left: 0 to −12 st
+- Noon: unison, dry
+- Right: 0 to +12 st
+- Mix follows the throw
+
+## Backspin
+
+Spin it back or throw it forward. Time Parasite is reverse-only.
+
+- Left: reverse window 40 to 300 ms, wet 0 to 50%
+- Noon: dry
+- Right: forward delay 40 to 450 ms, feedback 0 to 55%, wet 0 to 50%
+
+## Halo Rail
+
+Halo (chorus) one way, rail (flange) the other.
+
+- Noon: light chorus, about 12 ms, depth 12%, mix 20%
+- Left: delay 12 to 28 ms, depth 15 to 70%, rate 0.15 to 0.8 Hz, width 100 to 150%
+- Right: delay 12 to 2 ms, feedback 0 to 70%, depth 20 to 90%
+
+## Hollow Jet
+
+Same phaser, opposite comb. Phaser Sweep only adds more of one direction.
+
+- Noon: mild sweep, about 0.3 Hz, depth 25%, feedback 0
+- Left: feedback 0 to −70% (hollow notches)
+- Right: feedback 0 to +70% (jet)
+- Rate and depth grow with how far you throw it
+
+## Rust Chrome
+
+Rust one way, chrome the other. Noon is the tape still in the sleeve.
+
+- Left: 16 to 6 bits, 1x to 8x, wow, high shelf 0 to −10 dB
+- Right: high shelf 0 to +8 dB, exciter 0 to 55%
+
+## Squeeze Bloom
+
+Density in, space out. Velvet Damage only squeezes; Crush & Bloom only blooms while it drives.
+
+- Left: compressor ratio 1 to 8, auto makeup
+- Noon: bypass
+- Right: short reverb, mix 0 to 45%, size 10 to 55%
+
+## Satin Fold
+
+Satin warmth vs folded metal. Warm Drive is only the satin side; Bone Saw is only the fold.
+
+- Left: soft-clip 0 to +18 dB, low-pass 20 kHz to 6 kHz
+- Noon: clean
+- Right: wavefold 0 to 80%, hard clip on the way out

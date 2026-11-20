@@ -2,8 +2,8 @@
 
 There is exactly one knob. What it does depends on the preset you have loaded, and the line under the knob tells you what is moving right now.
 
-- Turn it up to move through the preset's character.
-- Double-click to return it to 0%.
+- On most presets, turn it up to move through the character. Double-click returns to 0%.
+- On bipolar presets (Filter Fork through Satin Fold), noon is rest. Left and right are opposite characters. The box shows −100% to +100%. Double-click returns to noon.
 - The percentage box under the knob shows where you are.
 
 Because the knob drives several parameters at once, the safest way to learn a preset is to sweep it slowly from one end to the other and listen. Nothing you can do with one knob will produce a bad sound; the mapping is built so every position is musical.

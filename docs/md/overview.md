@@ -4,9 +4,9 @@ fN0B is a preset player. You choose a preset, and you turn one knob. That is the
 
 A preset is either a single effect or a short chain of them. The knob does not control one parameter; it moves three or four together in a way that was tuned to sound good from one end to the other. So you never have to know what is under the hood. You turn it up, and it gets better.
 
-At 0% a preset is usually clean or wide open. At 100% it is fully committed: driven, crushed, resonant, or closed down. Somewhere in the middle is where most of the music lives.
+At 0% a unipolar preset is usually clean or wide open. At 100% it is fully committed. Bipolar presets rest at noon and grow two opposite characters as you throw the knob either way.
 
-Double-click the knob to send it back to 0%.
+Double-click the knob to send it back to rest: 0% on unipolar presets, noon on bipolar.
 
 This is the user book. The internals live under Spec, Architecture, and DSP notes in the sidebar, if you enjoy reading the wiring.
 

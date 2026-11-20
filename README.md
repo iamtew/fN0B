@@ -2,7 +2,7 @@
 
 # fN0B
 
-**fN0B** is a one-knob effect. Pick a preset, turn the knob, and hear the whole chain move. Each preset is one effect or a short chain, and the knob sweeps its key parameters together so every position sounds intentional. Side sliders trim input and output level; they are not extra knobs. Thirty-one presets ship, from Warm Drive through Singularity. The first six keep their original indices.
+**fN0B** is a one-knob effect. Pick a preset, turn the knob, and hear the whole chain move. Each preset is one effect or a short chain, and the knob sweeps its key parameters together so every position sounds intentional. Side sliders trim input and output level; they are not extra knobs. Forty-one presets ship, from Warm Drive through Satin Fold. The first six keep their original indices. Ten of them are bipolar: noon is rest, left and right oppose.
 
 VST3. Stupid Audio. [MIT](LICENSE). Site: [docs/](docs/index.html). Manual: [docs/docs.html](docs/docs.html).
 

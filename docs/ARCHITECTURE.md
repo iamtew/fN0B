@@ -20,7 +20,7 @@ Message thread:
 
 ## Files
 
-- `src/dsp/Presets.h` — the knob-to-parameter mapping. JUCE-free, so the check can compile it with plain `cl`.
+- `src/dsp/Presets.h` — the knob-to-parameter mapping. JUCE-free, so the check can compile it with plain `cl`. Unipolar uses k 0..1; bipolar uses signed throw around noon.
 - `src/dsp/Units.h` — JUCE-free units: clip, crush, delay, 8-line FDN, 6-stage phaser, peak comp, formants, grain, reverse. Sound first: these exist because they beat the stock JUCE boxes for this plugin.
 - `src/dsp/Chain.h` — the JUCE side is the TPT SVFs (LP/HP/BP) and the per-sample smoothers. Reverb, phaser, chorus, grain and the rest are our units. One `switch` on the preset, not a graph.
 
