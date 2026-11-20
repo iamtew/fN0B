@@ -695,6 +695,232 @@ struct Chain
                 break;
             }
 
+            case 31: // Filter Fork: only the engaged side.
+            {
+                if (v.hpHz > 25.f)
+                {
+                    setHp (v.hpHz, v.res, justChanged);
+                    processHp (buffer, ch, n);
+                }
+                else if (v.cutoffHz < 19950.f)
+                {
+                    setLp (v.cutoffHz, v.res, justChanged);
+                    processLp (buffer, ch, n);
+                }
+                break;
+            }
+
+            case 32: // Tiltfork
+            {
+                if (std::abs (v.tilt) < 0.01f)
+                    break;
+                const float a = onePoleHz (1000.f);
+                const float tiltG = juce::Decibels::decibelsToGain (v.tilt) - 1.f;
+                for (int i = 0; i < n; ++i)
+                {
+                    for (int c = 0; c < ch; ++c)
+                    {
+                        auto* d = buffer.getWritePointer (c);
+                        const float lf = pole[(size_t) c].process (d[i], a);
+                        d[i] += tiltG * (d[i] - lf);
+                    }
+                }
+                break;
+            }
+
+            case 33: // Width Rift
+            {
+                for (int i = 0; i < n; ++i)
+                {
+                    float sL = L[i], sR = ch > 1 ? R[i] : L[i];
+                    const float m = 0.5f * (sL + sR);
+                    const float s = 0.5f * (sL - sR) * v.width;
+                    L[i] = m + s;
+                    if (ch > 1)
+                        R[i] = m - s;
+                }
+                break;
+            }
+
+            case 34: // Pitch Pendulum
+            {
+                if (v.mix < 0.001f)
+                    break;
+                const float ratio = std::exp2 (v.pitch / 12.f);
+                for (int i = 0; i < n; ++i)
+                {
+                    for (int c = 0; c < ch; ++c)
+                    {
+                        auto* d = buffer.getWritePointer (c);
+                        const float p = processPitch (echo[(size_t) c], pitchOff[(size_t) c], d[i], ratio);
+                        d[i] = d[i] * (1.f - v.mix) + p * v.mix;
+                    }
+                }
+                break;
+            }
+
+            case 35: // Backspin
+            {
+                if (v.mix < 0.001f)
+                    break;
+                if (v.shape < 0.5f)
+                {
+                    const int win = 64 + (int) (v.delayMs * 0.001f * (float) sr);
+                    for (int i = 0; i < n; ++i)
+                    {
+                        for (int c = 0; c < ch; ++c)
+                        {
+                            auto* d = buffer.getWritePointer (c);
+                            const float y = revw[(size_t) c].process (d[i], win);
+                            d[i] = d[i] * (1.f - v.mix) + y * v.mix;
+                        }
+                    }
+                }
+                else
+                {
+                    setSmooth (2, clampDelay (v.delayMs), justChanged);
+                    const float fb = v.feedback > 0.8f ? 0.8f : v.feedback;
+                    for (int i = 0; i < n; ++i)
+                    {
+                        const float off = smooth[2].getNextValue();
+                        for (int c = 0; c < ch; ++c)
+                        {
+                            auto* d = buffer.getWritePointer (c);
+                            echo[(size_t) c].readOffset = off;
+                            const float y = echo[(size_t) c].processLooped (d[i], fb, 0.f, 0.85f);
+                            d[i] = d[i] * (1.f - v.mix) + y * v.mix;
+                        }
+                    }
+                }
+                break;
+            }
+
+            case 36: // Halo Rail
+            {
+                if (v.feedback > 0.001f)
+                {
+                    setSmooth (2, clampDelay (v.delayMs), justChanged);
+                    setSmooth (3, v.chorusRateHz, justChanged);
+                    const float dph = kTwoPi * juce::jmax (0.01f, v.chorusRateHz) / (float) sr;
+                    const float fb = v.feedback > 0.85f ? 0.85f : v.feedback;
+                    const float span = clampDelay (v.delayMs) * 0.45f * clamp01 (v.chorusDepth);
+                    for (int i = 0; i < n; ++i)
+                    {
+                        lfo += dph;
+                        if (lfo > kTwoPi) lfo -= kTwoPi;
+                        const float off = smooth[2].getNextValue() + span * std::sin (lfo);
+                        for (int c = 0; c < ch; ++c)
+                        {
+                            auto* d = buffer.getWritePointer (c);
+                            echo[(size_t) c].readOffset = off;
+                            const float y = echo[(size_t) c].read();
+                            echo[(size_t) c].writeSample (d[i] + y * fb);
+                            d[i] = d[i] * (1.f - v.mix) + y * v.mix;
+                        }
+                    }
+                }
+                else
+                {
+                    processChorus (buffer, ch, n, v.chorusRateHz, v.chorusDepth, v.mix, v.width,
+                                   justChanged, v.delayMs);
+                }
+                break;
+            }
+
+            case 37: // Hollow Jet
+            {
+                phaser.process (L, R, n, v.phaserRateHz, v.phaserDepth, v.feedback);
+                const float trim = 0.7f + 0.1f * v.phaserDepth;
+                buffer.applyGain (trim);
+                break;
+            }
+
+            case 38: // Rust Chrome
+            {
+                const float aShelf = onePoleHz (2500.f);
+                const float shelfG = juce::Decibels::decibelsToGain (v.shelfDb) - 1.f;
+                if (v.wow > 0.0001f || v.bits < 15.5f)
+                {
+                    const float base = (float) sr * 0.012f;
+                    const float wowDph = kTwoPi * 0.55f / (float) sr;
+                    for (int i = 0; i < n; ++i)
+                    {
+                        wowPh += wowDph;
+                        if (wowPh > kTwoPi) wowPh -= kTwoPi;
+                        const float off = base * (1.f + v.wow * std::sin (wowPh));
+                        for (int c = 0; c < ch; ++c)
+                        {
+                            auto* d = buffer.getWritePointer (c);
+                            float y = crush[(size_t) c].process (d[i], v.crushDiv, v.bits);
+                            echo[(size_t) c].readOffset = off;
+                            y = echo[(size_t) c].process (y);
+                            const float lf = pole[(size_t) c].process (y, aShelf);
+                            d[i] = y + shelfG * (y - lf);
+                        }
+                    }
+                }
+                else if (std::abs (v.shelfDb) > 0.01f || v.excite > 0.001f)
+                {
+                    const float aEx = onePoleHz (4000.f);
+                    for (int i = 0; i < n; ++i)
+                    {
+                        for (int c = 0; c < ch; ++c)
+                        {
+                            auto* d = buffer.getWritePointer (c);
+                            const float lf = pole[(size_t) c].process (d[i], aShelf);
+                            float y = d[i] + shelfG * (d[i] - lf);
+                            const float hi = y - pole[(size_t) (c + 2)].process (y, aEx);
+                            d[i] = y + v.excite * std::tanh (hi * 4.f);
+                        }
+                    }
+                }
+                break;
+            }
+
+            case 39: // Squeeze Bloom
+            {
+                if (v.mix > 0.001f)
+                {
+                    reverb.process (L, R, n, v.reverbSize, 0.5f, v.mix, 0.f, 0.f);
+                }
+                else if (v.ratio > 1.01f)
+                {
+                    for (int c = 0; c < ch; ++c)
+                    {
+                        auto* d = buffer.getWritePointer (c);
+                        for (int i = 0; i < n; ++i)
+                            d[i] = comp[(size_t) c].process (d[i], 0.35f, v.ratio);
+                    }
+                }
+                break;
+            }
+
+            case 40: // Satin Fold
+            {
+                if (v.driveDb > 0.01f)
+                {
+                    const float g = juce::Decibels::decibelsToGain (v.driveDb);
+                    for (int c = 0; c < ch; ++c)
+                    {
+                        auto* d = buffer.getWritePointer (c);
+                        for (int i = 0; i < n; ++i)
+                            d[i] = std::tanh (d[i] * g);
+                    }
+                    setLp (v.cutoffHz, 0.707f, justChanged);
+                    processLp (buffer, ch, n);
+                }
+                else if (v.shape > 0.001f)
+                {
+                    for (int c = 0; c < ch; ++c)
+                    {
+                        auto* d = buffer.getWritePointer (c);
+                        for (int i = 0; i < n; ++i)
+                            d[i] = hardClip (waveFold (d[i], v.shape));
+                    }
+                }
+                break;
+            }
+
             default:
                 break;
         }
@@ -792,10 +1018,11 @@ private:
     }
 
     void processChorus (juce::AudioBuffer<float>& buffer, int ch, int n,
-                        float rateHz, float depth, float mix, float width, bool snap)
+                        float rateHz, float depth, float mix, float width, bool snap,
+                        float delayMs = 12.f)
     {
         setSmooth (3, rateHz, snap);
-        const float base = (float) sr * 0.012f;
+        const float base = clampDelay (delayMs);
         const float span = (float) sr * 0.008f * clamp01 (depth);
         const float dph = kTwoPi * juce::jmax (0.01f, smooth[3].skip (n)) / (float) sr;
         float* L = buffer.getWritePointer (0);

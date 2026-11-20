@@ -130,6 +130,39 @@ int main()
     assert (std::abs (fn0b::signedThrow (1.f) - 1.f) < 1e-6f);
     assert (std::abs (fn0b::mag (-0.4f) - 0.4f) < 1e-6f);
 
+    // Bipolar noon is rest (Halo Rail keeps a light chorus).
+    assert (std::abs (fn0b::voiceFor (31, 0.5f).cutoffHz - 20000.f) < 1.f);
+    assert (std::abs (fn0b::voiceFor (31, 0.5f).hpHz - 20.f) < 0.1f);
+    assert (std::abs (fn0b::voiceFor (31, 0.f).cutoffHz - 200.f) < 1.f);
+    assert (std::abs (fn0b::voiceFor (31, 1.f).hpHz - 2500.f) < 1.f);
+    assert (std::abs (fn0b::voiceFor (32, 0.5f).tilt) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (32, 0.f).tilt + 8.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (32, 1.f).tilt - 8.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (33, 0.5f).width - 1.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (33, 0.f).width) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (33, 1.f).width - 1.8f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (34, 0.5f).mix) < 1e-4f);
+    assert (fn0b::voiceFor (34, 0.f).pitch < -11.f);
+    assert (fn0b::voiceFor (34, 1.f).pitch > 11.f);
+    assert (std::abs (fn0b::voiceFor (35, 0.5f).mix) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (36, 0.5f).delayMs - 12.f) < 1e-3f);
+    assert (std::abs (fn0b::voiceFor (36, 0.5f).mix - 0.2f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (36, 0.5f).chorusDepth - 0.12f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (37, 0.5f).feedback) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (37, 0.f).feedback + 0.7f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (37, 1.f).feedback - 0.7f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (38, 0.5f).bits - 16.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (38, 0.f).bits - 6.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (38, 1.f).excite - 0.55f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (39, 0.5f).ratio - 1.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (39, 0.5f).mix) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (39, 0.f).ratio - 8.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (39, 1.f).mix - 0.45f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (40, 0.5f).driveDb) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (40, 0.5f).shape) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (40, 0.f).driveDb - 18.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (40, 1.f).shape - 0.8f) < 1e-4f);
+
     // The knob is clamped, so out-of-range input cannot produce a wild parameter.
     assert (std::abs (fn0b::voiceFor (1, -5.f).cutoffHz - 200.f) < 1e-3f);
     assert (std::abs (fn0b::voiceFor (1, 9.f).cutoffHz - 8000.f) < 1e-1f);

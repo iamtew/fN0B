@@ -325,6 +325,152 @@ inline Voice voiceFor (int preset, float knob)
             v.mix      = lerp (0.35f, 0.75f, k);
             break;
 
+        case 31: // Filter Fork
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            v.res = lerp (0.2f, 0.7f, a);
+            if (t < 0.f)
+            {
+                v.cutoffHz = lerp (20000.f, 200.f, a);
+                v.hpHz     = 20.f;
+            }
+            else
+            {
+                v.cutoffHz = 20000.f;
+                v.hpHz     = lerp (20.f, 2500.f, a);
+            }
+            break;
+        }
+
+        case 32: // Tiltfork
+        {
+            const float t = signedThrow (k);
+            v.tilt = t < 0.f ? lerp (0.f, -8.f, mag (t)) : lerp (0.f, 8.f, mag (t));
+            break;
+        }
+
+        case 33: // Width Rift
+        {
+            const float t = signedThrow (k);
+            v.width = t < 0.f ? lerp (1.f, 0.f, mag (t)) : lerp (1.f, 1.8f, mag (t));
+            break;
+        }
+
+        case 34: // Pitch Pendulum
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            v.pitch = t < 0.f ? lerp (0.f, -12.f, a) : lerp (0.f, 12.f, a);
+            v.mix   = a;
+            break;
+        }
+
+        case 35: // Backspin
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            v.mix = lerp (0.f, 0.5f, a);
+            if (t < 0.f)
+            {
+                v.delayMs = lerp (40.f, 300.f, a);
+                v.shape   = 0.f;          // reverse
+            }
+            else
+            {
+                v.delayMs  = lerp (40.f, 450.f, a);
+                v.feedback = lerp (0.f, 0.55f, a);
+                v.shape    = 1.f;         // forward
+            }
+            break;
+        }
+
+        case 36: // Halo Rail
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            if (t < 0.f)
+            {
+                v.delayMs      = lerp (12.f, 28.f, a);
+                v.chorusDepth  = lerp (0.15f, 0.7f, a);
+                v.chorusRateHz = lerp (0.15f, 0.8f, a);
+                v.width        = lerp (1.f, 1.5f, a);
+                v.mix          = lerp (0.2f, 0.55f, a);
+            }
+            else
+            {
+                v.delayMs      = lerp (12.f, 2.f, a);
+                v.chorusDepth  = lerp (0.12f, 0.9f, a);
+                v.chorusRateHz = lerp (0.15f, 0.8f, a);
+                v.feedback     = lerp (0.f, 0.7f, a);
+                v.mix          = lerp (0.2f, 0.7f, a);
+                v.width        = 1.f;
+            }
+            break;
+        }
+
+        case 37: // Hollow Jet
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            v.phaserRateHz = lerp (0.3f, 2.f, a);
+            v.phaserDepth  = lerp (0.25f, 0.9f, a);
+            v.feedback     = t < 0.f ? lerp (0.f, -0.7f, a) : lerp (0.f, 0.7f, a);
+            break;
+        }
+
+        case 38: // Rust Chrome
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            if (t < 0.f)
+            {
+                v.bits     = lerp (16.f, 6.f, a);
+                v.crushDiv = lerp (1.f, 8.f, a);
+                v.wow      = lerp (0.f, 0.006f, a);
+                v.shelfDb  = lerp (0.f, -10.f, a);
+            }
+            else
+            {
+                v.shelfDb = lerp (0.f, 8.f, a);
+                v.excite  = lerp (0.f, 0.55f, a);
+            }
+            break;
+        }
+
+        case 39: // Squeeze Bloom
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            if (t < 0.f)
+            {
+                v.ratio = lerp (1.f, 8.f, a);
+            }
+            else
+            {
+                v.mix        = lerp (0.f, 0.45f, a);
+                v.reverbSize = lerp (0.1f, 0.55f, a);
+                v.ratio      = 1.f;
+            }
+            break;
+        }
+
+        case 40: // Satin Fold
+        {
+            const float t = signedThrow (k);
+            const float a = mag (t);
+            if (t < 0.f)
+            {
+                v.driveDb  = lerp (0.f, 18.f, a);
+                v.cutoffHz = lerp (20000.f, 6000.f, a);
+            }
+            else
+            {
+                v.shape = lerp (0.f, 0.8f, a); // fold amount
+            }
+            break;
+        }
+
         default:
             break;
     }
