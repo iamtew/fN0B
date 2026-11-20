@@ -29,12 +29,18 @@ int main()
                     && std::isfinite (v.chorusRateHz) && std::isfinite (v.hpHz)
                     && std::isfinite (v.pitch) && std::isfinite (v.freeze)
                     && std::isfinite (v.driveHi) && std::isfinite (v.ringHz));
-            assert (v.driveDb >= 0.f && v.driveDb <= 24.f);
+            if (p < fn0b::kFirstBipolar)
+                assert (v.driveDb >= 0.f && v.driveDb <= 24.f);
+            else
+                assert (v.driveDb >= -1.f && v.driveDb <= 24.f);
             assert (v.cutoffHz >= 20.f && v.cutoffHz <= 20000.f);
             assert (v.res > 0.f && v.res <= 1.f);
             assert (v.crushDiv >= 1.f && v.bits >= 4.f && v.bits <= 16.f);
             assert (v.delayMs >= 0.f && v.delayMs <= 500.f);
-            assert (v.feedback >= 0.f && v.feedback <= 0.9f);
+            if (p < fn0b::kFirstBipolar)
+                assert (v.feedback >= 0.f && v.feedback <= 0.9f);
+            else
+                assert (v.feedback >= -0.9f && v.feedback <= 0.9f);
             assert (v.mix >= 0.f && v.mix <= 1.f);
             assert (v.reverbSize >= 0.f && v.reverbSize <= 1.f);
             assert (v.shimmer >= 0.f && v.shimmer <= 0.5f);
@@ -42,8 +48,9 @@ int main()
             assert (v.phaserDepth >= 0.f && v.phaserDepth <= 1.f);
             assert (v.freeze >= 0.f && v.freeze <= 1.f);
 
-            // Drive is non-decreasing in the knob for every preset.
-            assert (v.driveDb + 1e-4f >= prevDrive);
+            // Drive is non-decreasing in the knob for unipolar presets.
+            if (p < fn0b::kFirstBipolar)
+                assert (v.driveDb + 1e-4f >= prevDrive);
             prevDrive = v.driveDb;
 
             // Cutoff moves one way only. Closers darken, 1 and 19 open.
@@ -114,8 +121,14 @@ int main()
     assert (std::abs (fn0b::voiceFor (20, 1.f).width - 1.8f) < 1e-4f);
     assert (fn0b::voiceFor (21, 1.f).pitch < -10.f);
     assert (fn0b::voiceFor (30, 1.f).freeze > 0.7f);
-    assert (fn0b::kPresetCount == 31);
+    assert (fn0b::kPresetCount == 41);
     assert (fn0b::kPresetNames[30][0] == 'S');
+    assert (fn0b::kPresetNames[40][0] == 'S');
+    assert (! fn0b::isBipolar (30));
+    assert (fn0b::isBipolar (31));
+    assert (std::abs (fn0b::signedThrow (0.5f)) < 1e-6f);
+    assert (std::abs (fn0b::signedThrow (1.f) - 1.f) < 1e-6f);
+    assert (std::abs (fn0b::mag (-0.4f) - 0.4f) < 1e-6f);
 
     // The knob is clamped, so out-of-range input cannot produce a wild parameter.
     assert (std::abs (fn0b::voiceFor (1, -5.f).cutoffHz - 200.f) < 1e-3f);

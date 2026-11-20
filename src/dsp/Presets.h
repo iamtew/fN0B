@@ -7,7 +7,8 @@
 namespace fn0b
 {
 
-inline constexpr int kPresetCount = 31;
+inline constexpr int kPresetCount = 41;
+inline constexpr int kFirstBipolar = 31;
 
 inline const char* const kPresetNames[kPresetCount] = {
     "Warm Drive",        "Filter Funk",      "Bitcrush Destruct", "Tape Echo",
@@ -17,8 +18,27 @@ inline const char* const kPresetNames[kPresetCount] = {
     "Laser Hive",        "Velvet Damage",    "Event Horizon",     "Shatterbox",
     "Hypercolor",        "Gravity Well",     "Glitch Garden",     "Unstable Orbit",
     "Bone Saw",          "Time Parasite",    "Formant Storm",     "Black Hole Chorus",
-    "Circuit Melt",      "Echo Psychosis",   "Singularity"
+    "Circuit Melt",      "Echo Psychosis",   "Singularity",
+    "Filter Fork",       "Tiltfork",         "Width Rift",        "Pitch Pendulum",
+    "Backspin",          "Halo Rail",        "Hollow Jet",        "Rust Chrome",
+    "Squeeze Bloom",     "Satin Fold"
 };
+
+inline bool isBipolar (int preset)
+{
+    return preset >= kFirstBipolar && preset < kPresetCount;
+}
+
+// Knob 0..1 → −1..1 for bipolar presets. Noon is 0.5.
+inline float signedThrow (float k)
+{
+    return 2.f * k - 1.f;
+}
+
+inline float mag (float t)
+{
+    return t < 0.f ? -t : t;
+}
 
 // One resolved set of unit parameters for the current knob position.
 // Unused fields stay at their neutral value, so a preset only fills what it uses.
@@ -70,8 +90,8 @@ inline float lerp (float a, float b, float t)
     return a + (b - a) * t;
 }
 
-// knob 0..1 to unit parameters. Monotonic in knob for every preset, which is what
-// the check asserts: turning the knob up always moves the sound one direction.
+// knob 0..1 to unit parameters. Unipolar presets are monotonic in knob (the
+// check asserts that). Bipolar presets (31+) map signedThrow(k) around noon.
 inline Voice voiceFor (int preset, float knob)
 {
     const float k = knob < 0.f ? 0.f : (knob > 1.f ? 1.f : knob);

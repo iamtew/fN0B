@@ -48,7 +48,17 @@ const char* const kHints[fn0b::kPresetCount] = {
     "thick chorus, pitch collapse, huge room",
     "ring mod, crush, filter screams",
     "three drifting delays argue as feedback rises",
-    "pitch up, grain cloud, freeze the void"
+    "pitch up, grain cloud, freeze the void",
+    "DJ filter: dark left, thin right, open at noon",
+    "tilt: bass left, treble right, flat at noon",
+    "image in or out, natural stereo at noon",
+    "octave down or up, dry at noon",
+    "reverse left, forward delay right, dry at noon",
+    "chorus halo left, flange rail right",
+    "hollow notches left, jet right, mild sweep at noon",
+    "rust left, chrome right, clean at noon",
+    "squeeze left, bloom right, bypass at noon",
+    "satin clip left, folded metal right, clean at noon"
 };
 } // namespace
 
@@ -56,7 +66,7 @@ const char* const kHints[fn0b::kPresetCount] = {
 
 void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int h,
                                                            float pos, float startAngle, float endAngle,
-                                                           juce::Slider&)
+                                                           juce::Slider& slider)
 {
     using namespace fn0b;
     auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h).reduced (1.f);
@@ -70,13 +80,15 @@ void fN0BAudioProcessorEditor::PanelLnF::drawRotarySlider (juce::Graphics& g, in
 
     g.setColour (kAmber);
     constexpr int nTicks = 11;
+    const bool bipolar = (bool) slider.getProperties()["bipolar"];
     for (int i = 0; i < nTicks; ++i)
     {
         const float t = (float) i / (float) (nTicks - 1);
         const float a = startAngle + t * (endAngle - startAngle);
-        const auto p0 = c.getPointOnCircumference (d * 0.48f, a);
-        const auto p1 = c.getPointOnCircumference (d * 0.40f, a);
-        g.drawLine (p0.x, p0.y, p1.x, p1.y, tickW);
+        const bool noon = bipolar && i == nTicks / 2;
+        const auto p0 = c.getPointOnCircumference (d * (noon ? 0.50f : 0.48f), a);
+        const auto p1 = c.getPointOnCircumference (d * (noon ? 0.36f : 0.40f), a);
+        g.drawLine (p0.x, p0.y, p1.x, p1.y, noon ? tickW * 1.6f : tickW);
     }
 
     // Shadow: two offset ellipses, not a DropShadow (which goes soft under the scale transform).
@@ -373,16 +385,18 @@ void fN0BAudioProcessorEditor::paintContent (juce::Graphics& g)
                                              outGain.getWidth(), kGainLabelH),
                 juce::Justification::centred, false);
 
-    // Decorative curve: the classic one-knob "more" ramp.
+    // Decorative curve: unipolar "more" ramp, bipolar V around noon.
     auto ramp = content.getLocalBounds().reduced (kPad).removeFromBottom (34);
     juce::Path p;
     const float x0 = (float) ramp.getX(), x1 = (float) ramp.getRight();
     const float yb = (float) ramp.getBottom(), yt = (float) ramp.getY();
-    p.startNewSubPath (x0, yb);
+    const bool bipolar = fn0b::isBipolar (proc.presetIndex());
+    p.startNewSubPath (x0, bipolar ? yt : yb);
     for (int i = 0; i <= 24; ++i)
     {
         const float t = (float) i / 24.f;
-        p.lineTo (x0 + (x1 - x0) * t, yb - (yb - yt) * t * t);
+        const float amt = bipolar ? (t < 0.5f ? (0.5f - t) * 2.f : (t - 0.5f) * 2.f) : t * t;
+        p.lineTo (x0 + (x1 - x0) * t, yb - (yb - yt) * amt);
     }
     g.setColour (kMint.withAlpha (0.35f));
     g.strokePath (p, juce::PathStrokeType (1.5f));
@@ -429,6 +443,35 @@ void fN0BAudioProcessorEditor::refreshBar()
     const int i = proc.presetIndex();
     presetBar.setText (fn0b::kPresetNames[i]);
     knobHint.setText (kHints[i], juce::dontSendNotification);
+
+    const bool bi = fn0b::isBipolar (i);
+    knob.getProperties().set ("bipolar", bi);
+    knob.setDoubleClickReturnValue (true, bi ? 0.5f : 0.f);
+    if (bi)
+    {
+        knob.textFromValueFunction = [] (double v)
+        {
+            return juce::String (juce::roundToInt ((float) (v - 0.5) * 200.f)) + "%";
+        };
+        knob.valueFromTextFunction = [] (const juce::String& t)
+        {
+            return (double) juce::jlimit (0.f, 1.f, t.getFloatValue() / 200.f + 0.5f);
+        };
+    }
+    else
+    {
+        knob.textFromValueFunction = [] (double v)
+        {
+            return juce::String (juce::roundToInt ((float) v * 100.f)) + "%";
+        };
+        knob.valueFromTextFunction = [] (const juce::String& t)
+        {
+            return (double) juce::jlimit (0.f, 1.f, t.getFloatValue() / 100.f);
+        };
+    }
+    knob.updateText();
+    knob.repaint();
+    content.repaint();
 }
 
 void fN0BAudioProcessorEditor::stepPreset (int delta)
