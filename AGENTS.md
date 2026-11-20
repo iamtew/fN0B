@@ -34,6 +34,9 @@ fN0B.jucer
 - The knob-to-parameter mapping lives in `src/dsp/Presets.h` and stays JUCE-free so `tests/fn0b_check.cpp` can compile it with plain `cl`.
 - Chain order is per preset and is part of the sound. Do not make it configurable.
 
+## Sound first
+The product is the sound. JUCE `dsp` is a convenience, not a ceiling. Pick the implementation that sounds best for that preset. Prefer a small custom unit in `src/dsp/Units.h` (JUCE-free, checkable with `just check`) when we can hear the difference. Keep JUCE when it is already the right algorithm (the TPT SVF). Do not copy sibling plugin source into this tree; read it, then write an fN0B-sized version. Real-time rules still win: no alloc, locks, or system calls in `processBlock`. No generic effect graph, no reorderable rack, no extra knobs.
+
 ## Colors
 - #35e0a6 Mint (accent, the knob flange and cap)
 - #f2c14e Amber (ticks, pointer, selection)

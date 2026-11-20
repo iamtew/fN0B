@@ -23,7 +23,32 @@ const char* const kHints[fn0b::kPresetCount] = {
     "sample rate 1x to 16x, 16 to 4 bits, drive 0 to +12 dB",
     "delay 60 to 450 ms, repeats 15 to 60%, top end falling to 2.5 kHz",
     "room grows to full, octave shimmer blooms to 50%, tone falls to 6 kHz",
-    "sweep 0.12 to 3.5 Hz, depth to full, feedback to 70%"
+    "sweep 0.12 to 3.5 Hz, depth to full, feedback to 70%",
+    "chorus rate, depth, mix and width opening together",
+    "two delays stretch, feedback rises, loop darkens",
+    "tremolo faster, deeper, sine to square with a little bite",
+    "delay and room grow, modulation and repeats thicken",
+    "drive into an opening high-pass, short plate blooms",
+    "sat, slow chorus smear, then the top end closes",
+    "comb 8 to 45 ms, then a concrete room",
+    "bandpass radio, crush, then 12% noise",
+    "tape sat, wow and flutter, shelf falling 12 dB",
+    "delay 40 to 300 ms, pitch bend, wet to 50%",
+    "resonant high-pass 80 Hz to 2.5 kHz into a phaser",
+    "drive to +24 dB, compressor 1.5:1 to 8:1, auto makeup",
+    "room and decay swallow the signal, then dark sat",
+    "three-band distortion, mids and highs take the hit",
+    "bright tilt, width to 180%, exciter to 60%",
+    "pitch dives, delay stretches, the well resonates",
+    "scramble, crush, freeze grains",
+    "opposite delays, cross-feedback, the orbit speeds up",
+    "wavefold, screaming comb, hard clip",
+    "reverse, pitch up, reverse again, the parasite grows",
+    "vowel morph, formants shake, then drive",
+    "thick chorus, pitch collapse, huge room",
+    "ring mod, crush, filter screams",
+    "three drifting delays argue as feedback rises",
+    "pitch up, grain cloud, freeze the void"
 };
 } // namespace
 

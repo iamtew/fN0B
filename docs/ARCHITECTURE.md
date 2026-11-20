@@ -21,7 +21,7 @@ Message thread:
 ## Files
 
 - `src/dsp/Presets.h` — the knob-to-parameter mapping. JUCE-free, so the check can compile it with plain `cl`.
-- `src/dsp/Units.h` — `softClip`, `BitCrusher`, `Delay`. Also JUCE-free.
-- `src/dsp/Chain.h` — the JUCE side: two `StateVariableTPTFilter`s, crushers, delay lines, `juce::dsp::Reverb`, `juce::dsp::Phaser`, and the per-sample smoothers.
+- `src/dsp/Units.h` — JUCE-free units: clip, crush, delay, 8-line FDN, 6-stage phaser, peak comp, formants, grain, reverse. Sound first: these exist because they beat the stock JUCE boxes for this plugin.
+- `src/dsp/Chain.h` — the JUCE side is the TPT SVFs (LP/HP/BP) and the per-sample smoothers. Reverb, phaser, chorus, grain and the rest are our units. One `switch` on the preset, not a graph.
 
-A preset that needs a unit it does not have yet adds it to `Units.h` (or a JUCE `dsp` widget in `Chain.h`) and one `case` in `Chain::process`. Units are written once and shared.
+A preset that needs a unit it does not have yet adds it to `Units.h` and one `case` in `Chain::process`. Units are written once and shared. Do not copy sibling plugin source into this tree.

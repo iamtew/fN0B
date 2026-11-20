@@ -22,29 +22,34 @@ int main()
             const auto v = fn0b::voiceFor (p, (float) i / 100.f);
             assert (std::isfinite (v.driveDb) && std::isfinite (v.cutoffHz)
                     && std::isfinite (v.res) && std::isfinite (v.crushDiv) && std::isfinite (v.bits)
-                    && std::isfinite (v.delayMs) && std::isfinite (v.feedback) && std::isfinite (v.mix)
+                    && std::isfinite (v.delayMs) && std::isfinite (v.delayMs2)
+                    && std::isfinite (v.feedback) && std::isfinite (v.mix)
                     && std::isfinite (v.reverbSize) && std::isfinite (v.shimmer)
-                    && std::isfinite (v.phaserRateHz) && std::isfinite (v.phaserDepth));
-            assert (v.driveDb >= 0.f && v.driveDb <= 18.f);
+                    && std::isfinite (v.phaserRateHz) && std::isfinite (v.phaserDepth)
+                    && std::isfinite (v.chorusRateHz) && std::isfinite (v.hpHz)
+                    && std::isfinite (v.pitch) && std::isfinite (v.freeze)
+                    && std::isfinite (v.driveHi) && std::isfinite (v.ringHz));
+            assert (v.driveDb >= 0.f && v.driveDb <= 24.f);
             assert (v.cutoffHz >= 20.f && v.cutoffHz <= 20000.f);
             assert (v.res > 0.f && v.res <= 1.f);
             assert (v.crushDiv >= 1.f && v.bits >= 4.f && v.bits <= 16.f);
-            assert (v.delayMs >= 0.f && v.delayMs <= 450.f);
-            assert (v.feedback >= 0.f && v.feedback <= 0.7f);
+            assert (v.delayMs >= 0.f && v.delayMs <= 500.f);
+            assert (v.feedback >= 0.f && v.feedback <= 0.9f);
             assert (v.mix >= 0.f && v.mix <= 1.f);
             assert (v.reverbSize >= 0.f && v.reverbSize <= 1.f);
             assert (v.shimmer >= 0.f && v.shimmer <= 0.5f);
             assert (v.phaserRateHz >= 0.f && v.phaserRateHz <= 3.5f);
             assert (v.phaserDepth >= 0.f && v.phaserDepth <= 1.f);
+            assert (v.freeze >= 0.f && v.freeze <= 1.f);
 
             // Drive is non-decreasing in the knob for every preset.
             assert (v.driveDb + 1e-4f >= prevDrive);
             prevDrive = v.driveDb;
 
-            // Cutoff moves one way only. 0/3/4 close down, 1 opens up, 2/5 hold.
-            if (p == 0 || p == 3 || p == 4)
+            // Cutoff moves one way only. Closers darken, 1 and 19 open.
+            if (p == 0 || p == 3 || p == 4 || p == 11 || p == 13 || p == 18 || p == 28)
                 assert (v.cutoffHz <= prevCut + 1e-3f || prevCut < 0.f);
-            else if (p == 1)
+            else if (p == 1 || p == 19)
                 assert (v.cutoffHz + 1e-3f >= prevCut);
             prevCut = v.cutoffHz;
 
@@ -100,6 +105,17 @@ int main()
     assert (std::abs (fn0b::voiceFor (5, 0.f).phaserRateHz - 0.12f) < 1e-3f);
     assert (std::abs (fn0b::voiceFor (5, 1.f).phaserRateHz - 3.5f) < 1e-3f);
     assert (std::abs (fn0b::voiceFor (5, 1.f).phaserDepth - 1.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (6, 1.f).width - 1.6f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (10, 1.f).driveDb - 18.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (11, 1.f).chorusDepth - 0.7f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (12, 1.f).combMs - 45.f) < 1e-3f);
+    assert (std::abs (fn0b::voiceFor (17, 1.f).ratio - 8.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (19, 1.f).driveHi - 30.f) < 1e-4f);
+    assert (std::abs (fn0b::voiceFor (20, 1.f).width - 1.8f) < 1e-4f);
+    assert (fn0b::voiceFor (21, 1.f).pitch < -10.f);
+    assert (fn0b::voiceFor (30, 1.f).freeze > 0.7f);
+    assert (fn0b::kPresetCount == 31);
+    assert (fn0b::kPresetNames[30][0] == 'S');
 
     // The knob is clamped, so out-of-range input cannot produce a wild parameter.
     assert (std::abs (fn0b::voiceFor (1, -5.f).cutoffHz - 200.f) < 1e-3f);
@@ -177,6 +193,51 @@ int main()
                                              0.6f, 3.f, 0.8f);
             assert (std::isfinite (y) && std::abs (y) < 4.f);
         }
+    }
+
+    // FDN: silence stays silent; an impulse comes back wet and finite.
+    {
+        static fn0b::FdReverb rv;
+        rv.setSampleRate (44100.0);
+        float L[64] {}, R[64] {};
+        rv.process (L, R, 64, 0.5f, 0.4f, 0.4f, 0.2f);
+        for (int i = 0; i < 64; ++i)
+            assert (std::isfinite (L[i]) && std::abs (L[i]) < 1e-5f);
+
+        L[0] = 1.f;
+        R[0] = 1.f;
+        rv.reset();
+        rv.process (L, R, 64, 0.8f, 0.3f, 0.6f, 0.4f);
+        float peak = 0.f;
+        for (int i = 0; i < 64; ++i)
+        {
+            assert (std::isfinite (L[i]) && std::isfinite (R[i]));
+            peak = std::max (peak, std::abs (L[i]));
+        }
+        assert (peak > 0.01f && peak < 8.f);
+    }
+
+    // Phaser: sine stays finite; fold and reverse stay bounded.
+    {
+        fn0b::Phaser ph;
+        ph.setSampleRate (44100.0);
+        float L[128], R[128];
+        for (int i = 0; i < 128; ++i)
+            L[i] = R[i] = 0.2f * std::sin ((float) i * 0.2f);
+        ph.process (L, R, 128, 0.8f, 0.7f, 0.4f);
+        for (int i = 0; i < 128; ++i)
+            assert (std::isfinite (L[i]) && std::abs (L[i]) < 4.f);
+
+        assert (std::abs (fn0b::waveFold (0.f, 1.f)) < 1e-6f);
+        assert (std::abs (fn0b::waveFold (0.9f, 1.f)) <= 1.f + 1e-3f);
+        assert (fn0b::hardClip (4.f) == 1.f);
+
+        static fn0b::Reverse rv;
+        rv.reset();
+        float acc = 0.f;
+        for (int i = 0; i < 4096; ++i)
+            acc += std::abs (rv.process (i == 0 ? 1.f : 0.f, 512));
+        assert (std::isfinite (acc));
     }
 
     std::printf ("fn0b_check ok  presets=%d\n", fn0b::kPresetCount);
