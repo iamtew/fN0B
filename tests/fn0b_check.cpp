@@ -241,6 +241,13 @@ int main()
         for (int i = 0; i < 128; ++i)
             assert (std::isfinite (L[i]) && std::abs (L[i]) < 4.f);
 
+        ph.reset();
+        for (int i = 0; i < 128; ++i)
+            L[i] = R[i] = 0.2f * std::sin ((float) i * 0.2f);
+        ph.process (L, R, 128, 0.8f, 0.7f, -0.7f);
+        for (int i = 0; i < 128; ++i)
+            assert (std::isfinite (L[i]) && std::abs (L[i]) < 4.f);
+
         assert (std::abs (fn0b::waveFold (0.f, 1.f)) < 1e-6f);
         assert (std::abs (fn0b::waveFold (0.9f, 1.f)) <= 1.f + 1e-3f);
         assert (fn0b::hardClip (4.f) == 1.f);

@@ -337,7 +337,7 @@ struct Phaser
         rateHz = rateHz < 0.01f ? 0.01f : rateHz;
         const float dph = kTwoPi * rateHz / (float) sr;
         const float ny = (float) sr * 0.45f;
-        const float fb = feedback < 0.f ? 0.f : (feedback > 0.85f ? 0.85f : feedback);
+        const float fb = feedback < -0.85f ? -0.85f : (feedback > 0.85f ? 0.85f : feedback);
         float* ch[2] = { L, R };
         for (int i = 0; i < n; ++i)
         {
